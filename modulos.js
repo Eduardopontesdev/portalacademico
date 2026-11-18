@@ -9,14 +9,16 @@ window.FF_MODULOS = [
   {
     id: "musculo",                       // identificador (sem espaços/acentos). NUNCA mude depois de emitir códigos
     nome: "MusculoApp",                  // nome mostrado
+    semestre: "2º semestre",             // aparece ao lado do nome (apague a linha para não mostrar)
     emoji: "💪",
     pasta: "musculo",                    // pasta do módulo dentro do portal
-    descricao: "72 músculos: origem, inserção e ação · quiz e estudo",
+    descricao: "54 músculos: origem, inserção e ação · quiz e estudo",
     cor: ["#fde68a", "#fb923c"]          // degradê do ícone na página inicial
   },
   {
     id: "farma",
     nome: "FarmaFund",
+    semestre: "2º semestre",
     emoji: "💊",
     pasta: "farma",
     descricao: "Fundamentos da Prática Farmacêutica · 30 questões e cálculos animados",
