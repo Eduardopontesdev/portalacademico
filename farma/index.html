@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>FarmaFund – Fundamentos da Prática Farmacêutica</title>
+<style>
+:root{
+  --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --brand:#0f766e; --brand2:#14b8a6; --brand-soft:#ccfbf1;
+  --ok:#059669; --ok-soft:#d1fae5; --err:#e11d48; --err-soft:#ffe4e6;
+  --o:#2563eb; --o-soft:#dbeafe; --a:#7c3aed; --a-soft:#ede9fe; --warn:#d97706; --warn-soft:#fef3c7;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0b1220; --card:#131c2e; --text:#e5edf7; --muted:#94a3b8; --line:#243049;
+    --brand:#14b8a6; --brand2:#2dd4bf; --brand-soft:#0f2f2c;
+    --ok:#34d399; --ok-soft:#08302a; --err:#fb7185; --err-soft:#3a1420;
+    --o:#60a5fa; --o-soft:#13243f; --a:#a78bfa; --a-soft:#251c45; --warn:#fbbf24; --warn-soft:#3a2a0a;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.45;overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+#app{max-width:640px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
+
+.top{padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 16px;background:linear-gradient(135deg,#0f766e,#115e59 60%,#134e4a);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:0 0 22px 22px;box-shadow:0 6px 20px rgba(15,118,110,.25);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:11px}
+.logo .ic{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:22px}
+.logo h1{font-size:18px;margin:0;font-weight:800;letter-spacing:-.01em}
+.logo p{margin:0;font-size:12px;opacity:.8}
+.chip{background:rgba(255,255,255,.16);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap}
+
+main{flex:1;overflow-y:auto;padding:16px 16px 24px;-webkit-overflow-scrolling:touch}
+.view{animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 8px);flex-shrink:0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border-radius:14px;color:var(--muted);font-size:11.5px;font-weight:700;position:relative}
+.tab .e{font-size:21px;line-height:1.1}
+.tab.on{color:var(--brand);background:var(--brand-soft)}
+.badge{position:absolute;top:2px;right:calc(50% - 26px);background:var(--err);color:#fff;border-radius:999px;font-size:10px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 5px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+h2.sec{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 4px 9px;font-weight:800}
+h2.sec:first-child{margin-top:4px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:22px;font-weight:800}
+.stat span{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+
+.seg{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:14px;border:1px solid var(--line)}
+.seg button{flex:1;padding:9px 4px;border-radius:11px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--brand);box-shadow:var(--shadow)}
+
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.region{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;text-align:left;box-shadow:var(--shadow);transition:transform .1s}
+.region:active{transform:scale(.97)}
+.region.all{grid-column:1/-1;background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border:0}
+.region.vid{grid-column:1/-1;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:0;display:flex;align-items:center;gap:12px}
+.region.vid .me{font-size:30px}
+.region b{display:block;font-size:15px}
+.region small{font-size:12px;color:var(--muted)}
+.region.all small,.region.vid small{color:rgba(255,255,255,.88)}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--brand2);border-radius:99px;transition:width .3s}
+.region.all .bar{background:rgba(255,255,255,.3)}
+.region.all .bar i{background:#fff}
+
+.btn{width:100%;padding:14px;border-radius:14px;font-weight:800;font-size:15.5px;background:var(--brand);color:#fff;margin-top:10px;box-shadow:0 4px 12px rgba(15,118,110,.25)}
+.btn.dark{background:var(--text);color:var(--bg);box-shadow:none}
+.btn.soft{background:var(--bg);color:var(--text);border:1px solid var(--line);box-shadow:none}
+.btn.warn{background:#f59e0b}
+.btn.vio{background:linear-gradient(135deg,#7c3aed,#2563eb)}
+.btn:disabled{opacity:.45}
+.btn.mini{padding:10px;font-size:14px;margin-top:8px}
+
+/* Quiz */
+.qhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.x{width:38px;height:38px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:18px;flex-shrink:0}
+.prog{flex:1}
+.prog .bar{height:10px;margin:0}
+.qmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.pill{display:inline-block;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:12px;padding:4px 11px;border-radius:99px;margin-bottom:10px}
+.qtext{font-size:17.5px;font-weight:800;margin:4px 0 14px;line-height:1.4}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:11px;align-items:center;text-align:left;padding:12px 13px;border-radius:14px;border:2px solid var(--line);background:var(--card);font-weight:600;font-size:14.5px}
+.opt .lt{width:28px;height:28px;border-radius:9px;background:var(--bg);display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--muted);flex-shrink:0}
+.opt:active{transform:scale(.99)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.ok .lt{background:var(--ok);color:#fff}
+.opt.bad{border-color:var(--err);background:var(--err-soft)} .opt.bad .lt{background:var(--err);color:#fff}
+textarea.ans{width:100%;padding:13px 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:15px;outline:none;resize:vertical;min-height:120px}
+textarea.ans:focus{border-color:var(--brand)}
+
+.fb{margin-top:14px;border-radius:18px;padding:15px;border:2px solid;animation:in .25s}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--err-soft);border-color:var(--err)}
+.fb.neu{background:var(--brand-soft);border-color:var(--brand)}
+.fbh{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.fbi{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex-shrink:0}
+.ok .fbi{background:var(--ok)} .bad .fbi{background:var(--err)} .neu .fbi{background:var(--brand)}
+.fbh small{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.ok .fbh small{color:var(--ok)} .bad .fbh small{color:var(--err)} .neu .fbh small{color:var(--brand)}
+.fbh b{font-size:16px;line-height:1.3}
+.tip{margin-top:8px;font-size:14px;background:var(--card);border-radius:12px;padding:10px 12px}
+.tip small{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.attempt{font-size:13px;color:var(--muted);margin:-2px 0 8px}
+.attempt s{color:var(--err);font-weight:700}
+.model{background:var(--card);border-left:5px solid var(--brand);border-radius:12px;padding:11px 13px;font-size:14px;margin-top:12px}
+.model small{display:block;font-size:11px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.result{text-align:center}
+.trophy{font-size:56px;margin:4px 0}
+.result h2{margin:0;font-size:24px}
+.result p{color:var(--muted);margin:4px 0 14px}
+.rs{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.rs div{border-radius:14px;padding:12px 4px}
+.rs b{display:block;font-size:24px}
+.rs span{font-size:11px;font-weight:800;text-transform:uppercase}
+.brk{text-align:left;margin:10px 0}
+.brk div{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;padding:6px 0;border-bottom:1px dashed var(--line)}
+
+.warnmsg{color:var(--warn);font-size:13px;font-weight:700;margin:8px 2px 0}
+.empty{text-align:center;color:var(--muted);padding:34px 10px}
+.empty .big{font-size:44px}
+.banner{display:flex;align-items:center;gap:12px;background:var(--warn-soft);border:1px solid var(--warn);border-radius:16px;padding:12px 14px;margin-bottom:12px;width:100%;text-align:left}
+.banner b{display:block;font-size:14px}
+.banner small{color:var(--muted)}
+
+/* Estudo */
+details.m{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:9px;box-shadow:var(--shadow);overflow:hidden}
+details.m summary{list-style:none;padding:13px 14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+details.m summary::-webkit-details-marker{display:none}
+details.m summary b{flex:1;font-size:15px}
+details.m summary::after{content:"›";font-size:22px;color:var(--muted);transition:transform .2s}
+details.m[open] summary::after{transform:rotate(90deg)}
+.mbody{padding:0 14px 14px;font-size:14.5px}
+.mbody ul{margin:6px 0;padding-left:20px}
+.mbody li{margin:4px 0}
+.mbody p{margin:6px 0}
+.kv{background:var(--bg);border-radius:12px;padding:10px 12px;margin:8px 0}
+.tl>div{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.tl b{min-width:50px;color:var(--brand)}
+table.tb{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0}
+table.tb th,table.tb td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tb th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.fml{font-size:16px;font-weight:800;background:var(--brand-soft);color:var(--brand);border-radius:12px;padding:10px 12px;margin:8px 0}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex-shrink:0;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted)}
+.chips button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+.fields label{font-size:12px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px}
+.fields input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:16px;font-weight:700;outline:none}
+.fields input:focus{border-color:var(--brand)}
+.steps ol{margin:6px 0;padding-left:20px;font-size:14.5px}
+.steps li{margin:6px 0}
+
+/* Player de animação */
+.player{margin-top:6px}
+.stitle{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px;margin-bottom:8px}
+.stitle span:last-child{color:var(--muted);font-size:12px}
+.screen{background:linear-gradient(180deg,var(--brand-soft),var(--card));border:1px solid var(--line);border-radius:20px;padding:14px;min-height:310px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.scene{animation:in .45s ease-out;display:flex;flex-direction:column;gap:10px}
+.cap{text-align:center;font-size:15px;font-weight:600;padding:0 4px}
+.vis{width:100%;max-height:215px}
+.segs{display:flex;gap:4px;margin:12px 0 8px}
+.segs button{flex:1;height:8px;border-radius:9px;background:var(--line);position:relative;overflow:hidden;padding:0}
+.segs button i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--brand2)}
+.segs button.done i{width:100%}
+.segs button.cur i{animation:fillseg var(--d,5s) linear forwards}
+@keyframes fillseg{to{width:100%}}
+.paused .segs button.cur i,.paused .screen *{animation-play-state:paused!important}
+.ctrl{display:flex;gap:10px;justify-content:center;align-items:center}
+.cb{width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:18px;box-shadow:var(--shadow)}
+.cb.big{width:58px;height:58px;background:var(--brand);color:#fff;font-size:22px;border:0}
+.cb.sp{font-size:13px;font-weight:800;width:52px;border-radius:23px}
+
+.sc-body{fill:#334155}.sc-screen{fill:#0f172a}.sc-plate{fill:#94a3b8}
+.sc-num{fill:#4ade80;font:700 17px ui-monospace,Menlo,monospace}
+.drop{animation:rise 1.8s infinite ease-in}
+@keyframes rise{0%{transform:translateY(0);opacity:0}25%{opacity:.95}100%{transform:translateY(-38px);opacity:0}}
+.smoke{transform-box:fill-box;transform-origin:center;animation:rise2 2.4s infinite ease-out}
+@keyframes rise2{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:.75}100%{transform:translateY(-48px) scale(1.5);opacity:0}}
+.glow{animation:glow 1.1s infinite alternate}
+@keyframes glow{from{opacity:.5}to{opacity:1}}
+.s-dry{animation:dry 3.2s ease forwards}
+@keyframes dry{from{fill:#7fb069}to{fill:#c9a46a}}
+.s-burn{animation:burn 3.4s ease forwards}
+@keyframes burn{from{fill:#7fb069}55%{fill:#3f3f46}to{fill:#9ca3af}}
+.pulse{animation:pulse 1s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+.eqs{display:grid;gap:10px;text-align:center}
+.eq{font-size:19px;font-weight:700;opacity:0;animation:fadeup .6s forwards;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 8px}
+.eq.big{background:var(--brand);color:#fff;border:0}
+.eq.note{background:var(--warn-soft);border-color:var(--warn);font-size:14px;font-weight:600}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.n-a{color:var(--o)}.n-b{color:var(--a)}.n-r{color:var(--ok)}
+.big .n-r,.big .n-a,.big .n-b{color:#fff}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px;font-size:.92em}
+.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 8px 2px}
+.frac>span:last-child{padding:2px 8px 0}
+
+.res{text-align:center}
+.ring{width:140px;height:140px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:conic-gradient(var(--ok) var(--p,100%),var(--line) 0);animation:pop .8s cubic-bezier(.2,1.6,.4,1)}
+.ring>div{width:108px;height:108px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:28px;font-weight:800}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.reslabel{font-weight:800;margin:8px 0}
+.mbwrap{margin-top:8px}
+.mbar{display:flex;height:42px;border-radius:13px;overflow:hidden;border:2px solid var(--line);background:var(--bg)}
+.mbar .solid{background:#c9a46a;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+.mbar .part{background:#38bdf8;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;animation:growx 1.1s .3s ease-out backwards}
+.mbar .part.ash{background:#6b7280}
+@keyframes growx{from{width:0}}
+.legend{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-top:7px;gap:8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;background:#c9a46a}
+.legend i.w{background:#38bdf8}.legend i.ash{background:#6b7280}
+.mtot{text-align:center;font-size:13px;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <a class="logo" href="../index.html" style="color:inherit;text-decoration:none" aria-label="Voltar ao portal"><div class="ic">💊</div><div><h1>FarmaFund</h1><p>Fundamentos da Prática Farmacêutica</p></div></a>
+    <div class="chip" id="chip">🔥 0</div>
+  </header>
+
+  <main id="main">
+    <section id="v-home" class="view"></section>
+    <section id="v-quiz" class="view hidden"></section>
+    <section id="v-study" class="view hidden"></section>
+    <section id="v-errors" class="view hidden"></section>
+  </main>
+
+  <nav class="tabs">
+    <button class="tab on" data-tab="home"><span class="e">🏠</span>Início</button>
+    <button class="tab" data-tab="study"><span class="e">📖</span>Estudar</button>
+    <button class="tab" data-tab="errors"><span class="e">🎯</span>Erros<span class="badge hidden" id="errbadge">0</span></button>
+  </nav>
+</div>
+
+<script src="../modulos.js"></script>
+<script src="../license.js"></script>
+<script>
+/* =====================  DADOS  ===================== */
+const PARTS = {
+  conceitos:{n:"Conceitos básicos",e:"🧪"},
+  legislacao:{n:"História e legislação",e:"📜"},
+  analises:{n:"Análises clínicas",e:"🔬"},
+  broma:{n:"Bromatologia (cálculos)",e:"🧮"}
+};
+
+const Q = [
+ {id:1,part:"conceitos",q:"A homeopatia é um sistema terapêutico baseado em qual princípio?",
+  o:["Princípio da semelhança.","Utilização exclusiva de antibióticos.","Eliminação de plantas medicinais.","Uso de medicamentos apenas injetáveis.","Utilização de vitaminas."],a:0,
+  x:"Homeopatia = <b>“semelhante cura semelhante”</b> (princípio da semelhança): uma substância que causa sintomas em pessoa sadia, em doses diluídas, trata sintomas parecidos no doente."},
+ {id:2,part:"conceitos",q:"A fitoterapia utiliza principalmente:",
+  o:["Produtos de origem mineral.","Plantas medicinais e seus derivados.","Apenas medicamentos sintéticos.","Produtos exclusivamente animais.","Substâncias radioativas."],a:1,
+  x:"<b>Fito</b> = planta. Fitoterapia é o tratamento com plantas medicinais e seus derivados (chás, extratos, tinturas, cápsulas)."},
+ {id:3,part:"conceitos",q:"Qual é a principal diferença entre fármaco e medicamento?",
+  o:["São palavras com significados totalmente iguais.","O fármaco é a substância ativa, enquanto o medicamento é o produto farmacêutico preparado para utilização.","O medicamento é sempre uma planta medicinal.","O fármaco é utilizado apenas em cosméticos.","O medicamento não apresenta princípio ativo."],a:1,
+  x:"<b>Fármaco</b> = substância ativa (princípio ativo). <b>Medicamento</b> = produto pronto: fármaco + excipientes, em uma forma farmacêutica (comprimido, xarope...)."},
+ {id:4,part:"conceitos",q:"Um agonista é uma substância que:",
+  o:["Destrói os receptores celulares.","Impede a absorção de água.","Liga-se ao receptor e promove sua ativação.","Elimina todos os medicamentos do organismo.","Impede a circulação sanguínea."],a:2,
+  x:"<b>Agonista</b> se liga ao receptor e o <b>ativa</b>, gerando resposta. O <b>antagonista</b> se liga e <b>bloqueia</b>, sem ativar."},
+ {id:5,part:"legislacao",q:"Em que ano foram criados os primeiros cursos de Farmácia no Brasil?",
+  o:["1500.","1808.","1832.","1960.","1973."],a:2,num:true,
+  x:"Os primeiros cursos de Farmácia do Brasil foram criados em <b>1832</b>, ligados às faculdades de Medicina. 1960 é a Lei 3.820 (conselhos) e 1973 é a Lei 5.991 (controle sanitário)."},
+ {id:6,part:"legislacao",q:"Qual lei criou o Conselho Federal e os Conselhos Regionais de Farmácia?",
+  o:["Lei nº 5.991/1973.","Lei nº 3.820/1960.","Lei nº 9.782/1999.","Lei nº 13.021/2014.","Lei nº 8.080/1990."],a:1,
+  x:"<b>Lei 3.820/1960</b> criou o CFF e os CRFs. Macete: 3.820 → “<i>três-oito-vinte</i>” = os Conselhos (1960).<br>Outras: 5.991/73 (controle sanitário), 9.782/99 (Anvisa), 13.021/14 (exercício e fiscalização), 8.080/90 (SUS)."},
+ {id:7,part:"legislacao",q:"A Lei nº 5.991/1973 trata principalmente:",
+  o:["Da criação das universidades.","Do controle sanitário do comércio de medicamentos e correlatos.","Da criação da Anvisa.","Da regulamentação dos hospitais.","Da criação dos cursos de Farmácia."],a:1,
+  x:"A <b>Lei 5.991/1973</b> dispõe sobre o <b>controle sanitário do comércio</b> de drogas, medicamentos, insumos farmacêuticos e correlatos."},
+ {id:8,part:"legislacao",q:"Qual órgão é responsável pela vigilância sanitária em âmbito nacional?",
+  o:["CFF.","CRF.","Anvisa.","Ministério do Turismo.","Conselho de Medicina."],a:2,
+  x:"A <b>Anvisa</b> (Agência Nacional de Vigilância Sanitária, criada pela Lei 9.782/1999) coordena a vigilância sanitária no país. CFF e CRF fiscalizam a <i>profissão</i>, não a vigilância sanitária."},
+ {id:9,part:"legislacao",q:"A Lei nº 13.021/2014 dispõe sobre:",
+  o:["O exercício e a fiscalização das atividades farmacêuticas.","A criação dos primeiros cursos de Farmácia.","A regulamentação dos alimentos industrializados.","A criação do Conselho Federal de Medicina.","O funcionamento exclusivo dos laboratórios de análises clínicas."],a:0,
+  x:"A <b>Lei 13.021/2014</b> trata do <b>exercício e da fiscalização das atividades farmacêuticas</b> e define a farmácia como estabelecimento de saúde."},
+ {id:10,part:"legislacao",q:"Qual é a principal função dos Conselhos Regionais de Farmácia (CRFs)?",
+  o:["Fabricar medicamentos.","Comercializar produtos farmacêuticos.","Fiscalizar o exercício profissional farmacêutico.","Criar cursos universitários.","Produzir vacinas."],a:2,
+  x:"Os <b>CRFs</b> registram os farmacêuticos e <b>fiscalizam o exercício profissional</b> na sua região."},
+ {id:11,part:"analises",q:"O exame de glicemia é realizado principalmente pelo setor de:",
+  o:["Hematologia.","Bioquímica.","Parasitologia.","Microbiologia.","Imunologia."],a:1,
+  x:"Dosagens de substâncias no sangue (glicose, colesterol, ureia, creatinina) são feitas na <b>Bioquímica</b>."},
+ {id:12,part:"analises",q:"O hemograma é um exame relacionado ao setor de:",
+  o:["Toxicologia.","Bioquímica.","Hematologia.","Parasitologia.","Urinálise."],a:2,
+  x:"<b>Hematologia</b> estuda as células do sangue: hemácias, leucócitos e plaquetas (hemograma)."},
+ {id:13,part:"analises",q:"O setor responsável pela identificação de bactérias em amostras biológicas é:",
+  o:["Microbiologia.","Hematologia.","Bioquímica.","Imunologia.","Toxicologia."],a:0,
+  x:"<b>Microbiologia</b>: cultura, identificação de bactérias/fungos e antibiograma."},
+ {id:14,part:"analises",q:"O exame parasitológico de fezes está relacionado a qual setor?",
+  o:["Bioquímica.","Hematologia.","Imunologia.","Parasitologia.","Toxicologia."],a:3,
+  x:"<b>Parasitologia</b> pesquisa ovos, cistos e larvas de parasitas (ex.: EPF – exame parasitológico de fezes)."},
+ {id:15,part:"analises",q:"A creatinina é um parâmetro utilizado principalmente para avaliar:",
+  o:["A função renal.","A quantidade de plaquetas.","A presença de parasitas intestinais.","A produção de anticorpos.","A quantidade de hemácias."],a:0,
+  x:"<b>Creatinina</b> (e ureia) avaliam a <b>função renal</b>. Plaquetas e hemácias → hemograma."},
+ {id:16,part:"broma",q:"Uma amostra de alimento apresentou massa inicial de 10 g. Após a secagem em estufa, sua massa passou a ser 9 g. Qual é o teor de umidade?",
+  o:["5%.","10%.","15%.","20%.","25%."],a:1,num:true,c:{type:"umidade",v:{mi:10,mf:9}},
+  x:"<b>1)</b> Água perdida = 10 − 9 = <b>1 g</b><br><b>2)</b> Umidade = (1 ÷ 10) × 100 = <b>10%</b>"},
+ {id:17,part:"broma",q:"Uma amostra apresentou massa inicial de 20 g e massa final após secagem de 18 g. Qual foi a massa de água perdida?",
+  o:["1 g.","2 g.","3 g.","4 g.","5 g."],a:1,num:true,c:{type:"agua",v:{mi:20,mf:18}},
+  x:"Água perdida = massa inicial − massa final = 20 − 18 = <b>2 g</b>."},
+ {id:18,part:"broma",q:"Na determinação de cinzas, foram obtidos os seguintes valores: cadinho vazio: 10 g; cadinho + amostra: 20 g; cadinho + cinzas: 11 g. Qual é a massa de cinzas?",
+  o:["0,5 g.","1 g.","2 g.","5 g.","10 g."],a:1,num:true,c:{type:"cinzas_massa",v:{c0:10,c1:20,c2:11}},
+  x:"Cinzas = (cadinho + cinzas) − cadinho vazio = 11 − 10 = <b>1 g</b>.<br>⚠️ O valor 20 g (cadinho + amostra) só serviria para achar a massa da amostra (20 − 10 = 10 g)."},
+ {id:19,part:"broma",q:"Uma amostra possui 2 g de cinzas e massa inicial de 10 g. Qual é o teor de cinzas?",
+  o:["5%.","10%.","15%.","20%.","25%."],a:3,num:true,c:{type:"cinzas_pct",v:{cinzas:2,amostra:10}},
+  x:"Teor de cinzas = (massa de cinzas ÷ massa da amostra) × 100 = (2 ÷ 10) × 100 = <b>20%</b>."},
+ {id:20,part:"legislacao",t:"open",q:"Explique, com suas palavras, a diferença entre o Conselho Federal de Farmácia (CFF) e o Conselho Regional de Farmácia (CRF).",
+  x:"<b>CFF</b> (Conselho Federal de Farmácia): órgão de âmbito <b>nacional</b>. Estabelece normas e diretrizes da profissão, o Código de Ética, coordena e orienta os CRFs e atua como instância superior (recursos).<br><br><b>CRF</b> (Conselho Regional de Farmácia): órgão de âmbito <b>estadual/regional</b> (um em cada estado e no DF). Faz o <b>registro</b> dos farmacêuticos, <b>fiscaliza o exercício profissional</b> e os estabelecimentos na sua região e aplica as penalidades.<br><br>Os dois foram criados pela <b>Lei nº 3.820/1960</b>."},
+ {id:21,part:"conceitos",q:"A alopatia é uma prática terapêutica que utiliza medicamentos com a finalidade de:",
+  o:["Provocar os mesmos sintomas da doença.","Tratar doenças por meio de ações farmacológicas.","Utilizar exclusivamente plantas medicinais.","Substituir todos os procedimentos médicos.","Utilizar apenas substâncias naturais."],a:1,
+  x:"<b>Alopatia</b>: trata a doença com medicamentos que produzem efeito <b>contrário/diferente</b> ao dos sintomas (ação farmacológica). “Provocar os mesmos sintomas” seria a homeopatia."},
+ {id:22,part:"conceitos",q:"Qual das alternativas apresenta um exemplo de forma farmacêutica?",
+  o:["Paracetamol.","Dipirona.","Comprimido.","Princípio ativo.","Antagonista."],a:2,
+  x:"<b>Forma farmacêutica</b> = apresentação final do medicamento: comprimido, cápsula, xarope, pomada, solução... Paracetamol e dipirona são <i>fármacos</i>."},
+ {id:23,part:"conceitos",q:"Um paciente utiliza um medicamento cuja substância ativa é responsável pelo efeito terapêutico. Essa substância é chamada de:",
+  o:["Excipiente.","Conservante.","Corante.","Princípio ativo.","Veículo."],a:3,
+  x:"<b>Princípio ativo</b> = responsável pelo efeito terapêutico. Excipiente, conservante, corante e veículo são componentes de apoio, sem efeito terapêutico."},
+ {id:24,part:"legislacao",q:"O Decreto nº 85.878/1981 está relacionado:",
+  o:["Às atribuições do profissional farmacêutico.","À criação da Anvisa.","À criação dos primeiros cursos de Farmácia.","Ao controle sanitário de alimentos.","À criação do Sistema Único de Saúde."],a:0,
+  x:"O <b>Decreto 85.878/1981</b> trata das <b>atribuições do farmacêutico</b> (regulamenta o exercício da profissão). Anvisa = 1999; SUS = Lei 8.080/1990."},
+ {id:25,part:"legislacao",q:"Um farmacêutico precisa realizar seu registro profissional para exercer legalmente a profissão. Esse registro é realizado junto ao:",
+  o:["Ministério da Educação.","Ministério do Turismo.","Conselho Regional de Farmácia.","Conselho Federal de Medicina.","Ministério da Fazenda."],a:2,
+  x:"O registro profissional é feito no <b>CRF</b> do estado onde o farmacêutico vai atuar."},
+ {id:26,part:"analises",q:"Durante um exame laboratorial, foram identificadas alterações na quantidade de hemácias, leucócitos e plaquetas. Qual exame está relacionado a essa avaliação?",
+  o:["Glicemia.","Hemograma.","Ureia.","Creatinina.","Colesterol."],a:1,
+  x:"<b>Hemograma</b> = contagem de hemácias (série vermelha), leucócitos (série branca) e plaquetas."},
+ {id:27,part:"analises",q:"A análise de uma amostra de urina pode envolver três etapas principais. Quais são elas?",
+  o:["Física, química e microscópica.","Física, térmica e respiratória.","Química, hormonal e cardíaca.","Celular, óssea e muscular.","Imunológica, respiratória e digestiva."],a:0,
+  x:"Urinálise (EAS): <b>física</b> (cor, aspecto, odor, densidade), <b>química</b> (pH, proteínas, glicose...) e <b>microscópica</b> (sedimento)."},
+ {id:28,part:"broma",q:"Na análise de um alimento, a amostra apresentou massa inicial de 15 g e massa final de 12 g após secagem. Qual foi a porcentagem de umidade?",
+  o:["10%.","15%.","20%.","25%.","30%."],a:2,num:true,c:{type:"umidade",v:{mi:15,mf:12}},
+  x:"<b>1)</b> Água = 15 − 12 = <b>3 g</b><br><b>2)</b> Umidade = (3 ÷ 15) × 100 = <b>20%</b>"},
+ {id:29,part:"broma",q:"Na determinação de cinzas, um cadinho vazio apresentou massa de 15 g. Após a incineração, o conjunto cadinho + cinzas apresentou massa de 15,8 g. Qual é a massa de cinzas?",
+  o:["0,2 g.","0,5 g.","0,8 g.","1,0 g.","1,5 g."],a:2,num:true,c:{type:"cinzas_massa",v:{c0:15,c1:null,c2:15.8}},
+  x:"Cinzas = (cadinho + cinzas) − cadinho vazio = 15,8 − 15 = <b>0,8 g</b>."},
+ {id:30,part:"broma",q:"Uma amostra de alimento apresentou massa inicial de 20 g e, após a secagem, massa de 16 g. Qual é o teor de umidade?",
+  o:["10%.","15%.","20%.","25%.","30%."],a:2,num:true,c:{type:"umidade",v:{mi:20,mf:16}},
+  x:"<b>1)</b> Água = 20 − 16 = <b>4 g</b><br><b>2)</b> Umidade = (4 ÷ 20) × 100 = <b>20%</b>"}
+];
+
+const STUDY = [
+ {e:"🧪",t:"Conceitos básicos",h:`
+  <div class="kv"><b>Fármaco</b> = substância ativa. <b>Medicamento</b> = produto pronto (fármaco + excipientes) em uma forma farmacêutica.</div>
+  <ul><li><b>Princípio ativo:</b> responsável pelo efeito terapêutico.</li>
+  <li><b>Excipiente / veículo / conservante / corante:</b> componentes de apoio, sem efeito terapêutico.</li>
+  <li><b>Forma farmacêutica:</b> comprimido, cápsula, xarope, pomada, solução...</li>
+  <li><b>Agonista:</b> liga-se ao receptor e <b>ativa</b>.</li>
+  <li><b>Antagonista:</b> liga-se ao receptor e <b>bloqueia</b>.</li></ul>`},
+ {e:"🩺",t:"Sistemas terapêuticos",h:`
+  <ul><li><b>Alopatia:</b> trata a doença com medicamentos de ação farmacológica (efeito diferente/contrário ao sintoma).</li>
+  <li><b>Homeopatia:</b> princípio da <b>semelhança</b> (“semelhante cura semelhante”), doses diluídas.</li>
+  <li><b>Fitoterapia:</b> uso de <b>plantas medicinais</b> e derivados.</li></ul>`},
+ {e:"📜",t:"História e legislação",h:`
+  <div class="tl">
+   <div><b>1832</b><span>Primeiros cursos de Farmácia no Brasil</span></div>
+   <div><b>1960</b><span>Lei 3.820 – cria o CFF e os CRFs</span></div>
+   <div><b>1973</b><span>Lei 5.991 – controle sanitário do comércio de medicamentos e correlatos</span></div>
+   <div><b>1981</b><span>Decreto 85.878 – atribuições do farmacêutico</span></div>
+   <div><b>1990</b><span>Lei 8.080 – cria o SUS</span></div>
+   <div><b>1999</b><span>Lei 9.782 – cria a Anvisa</span></div>
+   <div><b>2014</b><span>Lei 13.021 – exercício e fiscalização das atividades farmacêuticas</span></div>
+  </div>`},
+ {e:"🏛️",t:"CFF × CRF",h:`
+  <table class="tb"><tr><th></th><th>CFF</th><th>CRF</th></tr>
+  <tr><td><b>Âmbito</b></td><td>Nacional</td><td>Estadual / regional</td></tr>
+  <tr><td><b>Função</b></td><td>Normas, diretrizes, Código de Ética; coordena os CRFs</td><td>Registra e <b>fiscaliza</b> o exercício profissional</td></tr>
+  <tr><td><b>Origem</b></td><td colspan="2">Lei 3.820/1960</td></tr></table>
+  <p>📌 <b>Registro profissional</b> do farmacêutico = no <b>CRF</b>.</p>`},
+ {e:"🔬",t:"Análises clínicas: setores",h:`
+  <table class="tb"><tr><th>Setor</th><th>O que faz / exemplos</th></tr>
+  <tr><td><b>Bioquímica</b></td><td>Glicemia, creatinina, ureia, colesterol</td></tr>
+  <tr><td><b>Hematologia</b></td><td>Hemograma (hemácias, leucócitos, plaquetas)</td></tr>
+  <tr><td><b>Microbiologia</b></td><td>Identificação de bactérias</td></tr>
+  <tr><td><b>Parasitologia</b></td><td>Exame parasitológico de fezes</td></tr>
+  <tr><td><b>Imunologia</b></td><td>Anticorpos</td></tr>
+  <tr><td><b>Urinálise</b></td><td>Física, química e microscópica</td></tr></table>
+  <p>📌 <b>Creatinina</b> → função renal.</p>`}
+];
+
+/* =====================  UTILIDADES  ===================== */
+const KEY="farmafund.v1";
+let store={stats:{},missed:[],best:0,len:0};
+function load(){ try{ const s=localStorage.getItem(KEY); if(s) store=Object.assign(store,JSON.parse(s)); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){} }
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function rnd(n){ if(window.crypto&&crypto.getRandomValues){const u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n;} return Math.floor(Math.random()*n); }
+const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=rnd(i+1);[r[i],r[j]]=[r[j],r[i]];}return r;};
+const r4=n=>Math.round(n*10000)/10000;
+const fmt=n=>r4(n).toLocaleString("pt-BR",{maximumFractionDigits:4});
+const decs=n=>{const s=fmt(n),i=s.indexOf(",");return i<0?0:s.length-i-1;};
+const qById=id=>Q.find(q=>q.id===id);
+const isMastered=q=>{const s=store.stats[q.id];return !!s&&s.last===1&&s.ok>=2;};
+
+let S=null, lastShown=null, studySeg="res", fromQuiz=false, autoplay=false;
+const quizActive=()=>S&&S.i<S.deck.length;
+
+/* =====================  NAVEGAÇÃO  ===================== */
+function show(tab){
+  if(tab!=="study") stopPlayer();
+  ["home","quiz","study","errors"].forEach(v=>$("v-"+v).classList.toggle("hidden",v!==tab));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===(tab==="quiz"?"home":tab)));
+  $("main").scrollTop=0;
+  if(tab==="home") renderHome();
+  if(tab==="study") renderStudy();
+  if(tab==="errors") renderErrors();
+}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{fromQuiz=false;show(t.dataset.tab);});
+function updateChrome(){
+  $("chip").textContent="🔥 Recorde: "+store.best;
+  const b=$("errbadge");b.textContent=store.missed.length;b.classList.toggle("hidden",store.missed.length===0);
+}
+
+/* =====================  INÍCIO  ===================== */
+function renderHome(){
+  const total=Q.length, mastered=Q.filter(isMastered).length;
+  let ok=0,err=0;Object.values(store.stats).forEach(s=>{ok+=s.ok;err+=s.err;});
+  const acc=ok+err?Math.round(ok/(ok+err)*100):0;
+  let h="";
+  if(quizActive()) h+=`<button class="banner" id="cont"><span style="font-size:26px">▶️</span><span><b>Continuar quiz em andamento</b><small>Questão ${S.i+1} de ${S.deck.length}</small></span></button>`;
+  h+=`<div class="stats">
+    <div class="stat"><b>${mastered}/${total}</b><span>Dominadas</span></div>
+    <div class="stat"><b>${acc}%</b><span>Acertos</span></div>
+    <div class="stat"><b>${store.missed.length}</b><span>Para rever</span></div></div>`;
+  h+=`<h2 class="sec">Questões por rodada</h2><div class="seg">`+
+    [[10,"10"],[20,"20"],[0,"Todas"]].map(x=>`<button data-len="${x[0]}" class="${store.len===x[0]?"on":""}">${x[1]}</button>`).join("")+`</div>`;
+  h+=`<h2 class="sec">Praticar</h2><div class="regions">`;
+  h+=`<button class="region all" data-part="all"><b>🎲 Simulado completo</b><small>${mastered} de ${total} dominadas · questões sempre embaralhadas</small><div class="bar"><i style="width:${mastered/total*100}%"></i></div></button>`;
+  Object.entries(PARTS).forEach(([k,p])=>{
+    const list=Q.filter(q=>q.part===k), md=list.filter(isMastered).length;
+    h+=`<button class="region" data-part="${k}"><b>${p.e} ${p.n}</b><small>${md}/${list.length} dominadas</small><div class="bar"><i style="width:${md/list.length*100}%"></i></div></button>`;
+  });
+  h+=`<button class="region vid" id="gocalc"><span class="me">🎬</span><span><b>Cálculos animados</b><small>Umidade e cinzas, passo a passo em vídeo curto</small></span></button></div>`;
+  $("v-home").innerHTML=h;
+  if($("cont")) $("cont").onclick=()=>show("quiz");
+  $("v-home").querySelectorAll("[data-len]").forEach(b=>b.onclick=()=>{store.len=+b.dataset.len;save();renderHome();});
+  $("v-home").querySelectorAll("[data-part]").forEach(b=>b.onclick=()=>startQuiz(b.dataset.part==="all"?null:b.dataset.part));
+  $("gocalc").onclick=()=>{studySeg="calc";fromQuiz=false;show("study");};
+  updateChrome();
+}
+
+/* =====================  QUIZ  ===================== */
+function startQuiz(part,custom){
+  let pool=custom||(part?Q.filter(q=>q.part===part):Q);
+  pool=shuffle(pool);                                   // sempre embaralhado
+  if(pool.length>1&&lastShown!==null&&pool[0].id===lastShown){const k=1+rnd(pool.length-1);[pool[0],pool[k]]=[pool[k],pool[0]];}
+  if(!custom&&store.len>0) pool=pool.slice(0,store.len);
+  S={part,custom:!!custom,deck:pool,i:0,ok:0,bad:0,streak:0,answered:false,missed:[],res:{},order:[]};
+  show("quiz"); renderQuestion();
+}
+
+function renderQuestion(){
+  if(S.i>=S.deck.length) return renderResult();
+  S.answered=false;
+  const q=S.deck[S.i], pct=Math.round(S.i/S.deck.length*100), P=PARTS[q.part];
+  let h=`<div class="qhead"><button class="x" id="qx" aria-label="Sair">✕</button>
+   <div class="prog"><div class="qmeta"><span>Questão ${S.i+1} de ${S.deck.length}</span><span>✅ ${S.ok} &nbsp;❌ ${S.bad}${S.streak>=3?" &nbsp;🔥"+S.streak:""}</span></div><div class="bar"><i style="width:${pct}%"></i></div></div></div>
+   <div class="card"><span class="pill">${P.e} ${P.n}</span><div class="qtext">${esc(q.q)}</div>`;
+  if(q.t==="open"){
+    h+=`<textarea class="ans" id="open" placeholder="Escreva com suas palavras..."></textarea>
+        <button class="btn" id="reveal">Ver resposta modelo</button><div id="fb"></div></div>`;
+  } else {
+    S.order=q.num?q.o.map((_,i)=>i):shuffle(q.o.map((_,i)=>i));   // alternativas embaralhadas (numéricas em ordem crescente)
+    h+=`<div class="opts" id="opts">`+S.order.map((oi,k)=>`<button class="opt" data-k="${k}"><span class="lt">${"ABCDE"[k]}</span><span>${esc(q.o[oi])}</span></button>`).join("")+`</div><div id="fb"></div></div>`;
+  }
+  $("v-quiz").innerHTML=h; $("main").scrollTop=0;
+  $("qx").onclick=()=>{ if(confirm("Sair do quiz? O progresso desta rodada será perdido.")){S=null;show("home");} };
+  if(q.t==="open") $("reveal").onclick=()=>revealOpen(q);
+  else $("opts").querySelectorAll(".opt").forEach(b=>b.onclick=()=>submitChoice(+b.dataset.k));
+}
+
+function record(q,ok){
+  const st=store.stats[q.id]||(store.stats[q.id]={ok:0,err:0,last:0});
+  const r=S.res[q.part]||(S.res[q.part]={ok:0,n:0}); r.n++;
+  if(ok){S.ok++;S.streak++;st.ok++;st.last=1;r.ok++;store.missed=store.missed.filter(id=>id!==q.id);if(S.streak>store.best)store.best=S.streak;}
+  else{S.bad++;S.streak=0;st.err++;st.last=0;S.missed.push(q.id);if(!store.missed.includes(q.id))store.missed.push(q.id);}
+  save(); updateChrome();
+}
+function calcBtn(q){ return q.c?`<button class="btn vio mini" data-calc="${q.id}">🎬 Ver a animação desta conta</button>`:""; }
+function bindCalc(root){ root.querySelectorAll("[data-calc]").forEach(b=>b.onclick=()=>{const q=qById(+b.dataset.calc);openCalc(q.c.type,q.c.v,quizActive()&&root.id==="fb");}); }
+function nextLabel(){ return S.i+1>=S.deck.length?"Ver resultado":"Próxima questão →"; }
+
+function submitChoice(k){
+  if(S.answered) return; S.answered=true;
+  const q=S.deck[S.i], ok=S.order[k]===q.a;
+  $("opts").querySelectorAll(".opt").forEach((b,idx)=>{b.disabled=true;if(S.order[idx]===q.a)b.classList.add("ok");else if(idx===k)b.classList.add("bad");});
+  record(q,ok);
+  $("fb").innerHTML=`<div class="fb ${ok?"ok":"bad"}">
+    <div class="fbh"><span class="fbi">${ok?"✓":"✕"}</span><div><small>${ok?"Certo! Muito bem!":"Resposta correta"}</small><b>${esc(q.o[q.a])}</b></div></div>
+    <div class="tip"><small>Explicação</small>${q.x}</div>${calcBtn(q)}
+    <button class="btn dark" id="next">${nextLabel()}</button></div>`;
+  $("next").onclick=nextQuestion; bindCalc($("fb"));
+  setTimeout(()=>$("fb").scrollIntoView({behavior:"smooth",block:"nearest"}),80);
+}
+
+function revealOpen(q){
+  if(S.answered) return; S.answered=true;
+  $("open").disabled=true; $("reveal").classList.add("hidden");
+  $("fb").innerHTML=`<div class="model"><small>Resposta modelo</small>${q.x}</div>
+    <h2 class="sec" style="margin-top:14px">Como você se saiu?</h2>
+    <div class="two"><button class="btn mini" id="gOk" style="background:var(--ok)">✅ Acertei</button><button class="btn mini" id="gBad" style="background:var(--err)">❌ Preciso rever</button></div>`;
+  const done=ok=>{record(q,ok);$("fb").innerHTML=`<div class="model"><small>Resposta modelo</small>${q.x}</div>
+    <div class="fb ${ok?"ok":"bad"}"><div class="fbh"><span class="fbi">${ok?"✓":"✕"}</span><div><small>Autoavaliação</small><b>${ok?"Anotado como acerto!":"Anotado para revisar"}</b></div></div>
+    <button class="btn dark" id="next">${nextLabel()}</button></div>`;$("next").onclick=nextQuestion;setTimeout(()=>$("next").scrollIntoView({behavior:"smooth",block:"nearest"}),80);};
+  $("gOk").onclick=()=>done(true); $("gBad").onclick=()=>done(false);
+  setTimeout(()=>$("fb").scrollIntoView({behavior:"smooth",block:"nearest"}),80);
+}
+
+function nextQuestion(){ lastShown=S.deck[S.i].id; S.i++; renderQuestion(); }
+
+function renderResult(){
+  const total=S.ok+S.bad, acc=total?Math.round(S.ok/total*100):0;
+  const emoji=acc>=90?"🏆":acc>=70?"🎉":acc>=50?"👍":"💪";
+  const msg=acc>=90?"Excelente domínio!":acc>=70?"Muito bom, continue assim!":acc>=50?"Bom caminho, revise os erros.":"Vamos reforçar esses temas!";
+  let h=`<div class="card result"><div class="trophy">${emoji}</div><h2>Resultado</h2><p>${msg}</p>
+   <div class="rs"><div style="background:var(--ok-soft);color:var(--ok)"><b>${S.ok}</b><span>Acertos</span></div>
+   <div style="background:var(--err-soft);color:var(--err)"><b>${S.bad}</b><span>Erros</span></div>
+   <div style="background:var(--bg)"><b>${acc}%</b><span>Aproveit.</span></div></div>`;
+  const keys=Object.keys(S.res);
+  if(keys.length>1) h+=`<div class="brk">`+keys.map(k=>`<div><span>${PARTS[k].e} ${PARTS[k].n}</span><span>${S.res[k].ok}/${S.res[k].n}</span></div>`).join("")+`</div>`;
+  if(S.missed.length) h+=`<button class="btn warn" id="rev">🎯 Praticar só os erros</button>`;
+  h+=`<button class="btn" id="again">🔄 Jogar novamente</button><button class="btn soft" id="home">Voltar ao início</button></div>`;
+  $("v-quiz").innerHTML=h; $("main").scrollTop=0;
+  if(S.missed.length) $("rev").onclick=()=>startQuiz(null,S.missed.map(qById));
+  $("again").onclick=()=>S.custom?startQuiz(null,S.deck):startQuiz(S.part);
+  $("home").onclick=()=>{S=null;show("home");};
+}
+
+/* =====================  ERROS  ===================== */
+function renderErrors(){
+  const list=store.missed.map(qById).filter(Boolean);
+  if(!list.length){$("v-errors").innerHTML=`<div class="empty"><div class="big">🎯</div><b>Nenhum erro para revisar</b><br>As questões que você errar aparecem aqui para reforço.</div>`;return;}
+  $("v-errors").innerHTML=`<button class="btn warn" id="pe" style="margin-top:0">🎯 Praticar as ${list.length} questões</button>
+   <button class="btn soft" id="ce">Limpar lista de erros</button><h2 class="sec">Para reforçar</h2>`+
+   list.map(q=>`<details class="m"><summary><span>${PARTS[q.part].e}</span><b>${esc(q.q)}</b></summary><div class="mbody">
+    ${q.t==="open"?"":`<div class="kv">✅ <b>${esc(q.o[q.a])}</b></div>`}<div>${q.x}</div>${calcBtn(q)}</div></details>`).join("");
+  $("pe").onclick=()=>startQuiz(null,list);
+  $("ce").onclick=()=>{if(confirm("Limpar a lista de erros?")){store.missed=[];save();updateChrome();renderErrors();}};
+  bindCalc($("v-errors"));
+}
+
+/* =====================  ESTUDAR  ===================== */
+function renderStudy(){
+  let h=`<div class="seg" style="margin-bottom:12px"><button data-s="res" class="${studySeg==="res"?"on":""}">📚 Resumos</button><button data-s="calc" class="${studySeg==="calc"?"on":""}">🎬 Cálculos animados</button></div><div id="sbody"></div>`;
+  $("v-study").innerHTML=h;
+  $("v-study").querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{studySeg=b.dataset.s;stopPlayer();renderStudy();});
+  if(studySeg==="res"){
+    $("sbody").innerHTML=STUDY.map(s=>`<details class="m"><summary><span style="font-size:20px">${s.e}</span><b>${s.t}</b></summary><div class="mbody">${s.h}</div></details>`).join("")+
+     `<details class="m"><summary><span style="font-size:20px">🧮</span><b>Bromatologia: fórmulas</b></summary><div class="mbody">
+      <div class="fml">Água perdida = massa inicial − massa final</div>
+      <div class="fml">% umidade = (água perdida ÷ massa inicial) × 100</div>
+      <div class="fml">Cinzas = (cadinho + cinzas) − cadinho vazio</div>
+      <div class="fml">% cinzas = (massa de cinzas ÷ massa da amostra) × 100</div>
+      <button class="btn vio mini" id="tocalc">🎬 Ver as contas animadas</button></div></details>`;
+    $("tocalc").onclick=()=>{studySeg="calc";renderStudy();};
+  } else renderCalc();
+}
+
+/* =====================  CÁLCULOS  ===================== */
+const CALCS={
+ agua:{e:"💧",name:"Massa de água perdida",formula:"Água perdida = massa inicial − massa final",
+  desc:"Pese a amostra, seque na estufa e pese de novo. O que “sumiu” é a água.",
+  fields:[{k:"mi",l:"Massa inicial (g)"},{k:"mf",l:"Massa final após secagem (g)"}],
+  presets:[{l:"Questão 17",v:{mi:20,mf:18}}],
+  check:v=>(v.mi>0&&v.mf>=0&&v.mi>v.mf)?null:"A massa inicial precisa ser maior que a massa final.",
+  scenes:v=>scAgua(v,false), steps:v=>`<ol><li>Massa inicial = <b>${fmt(v.mi)} g</b>; massa final = <b>${fmt(v.mf)} g</b>.</li><li>Água perdida = ${fmt(v.mi)} − ${fmt(v.mf)} = <b>${fmt(v.mi-v.mf)} g</b>.</li></ol>`},
+ umidade:{e:"🌡️",name:"Teor de umidade (%)",formula:"% umidade = (água perdida ÷ massa inicial) × 100",
+  desc:"Primeiro acha a água perdida; depois divide pela massa inicial e multiplica por 100.",
+  fields:[{k:"mi",l:"Massa inicial (g)"},{k:"mf",l:"Massa final após secagem (g)"}],
+  presets:[{l:"Questão 16",v:{mi:10,mf:9}},{l:"Questão 28",v:{mi:15,mf:12}},{l:"Questão 30",v:{mi:20,mf:16}}],
+  check:v=>(v.mi>0&&v.mf>=0&&v.mi>v.mf)?null:"A massa inicial precisa ser maior que a massa final.",
+  scenes:v=>scAgua(v,true), steps:v=>{const w=v.mi-v.mf;return `<ol><li>Água perdida = ${fmt(v.mi)} − ${fmt(v.mf)} = <b>${fmt(w)} g</b>.</li><li>Divida pela massa inicial: ${fmt(w)} ÷ ${fmt(v.mi)} = <b>${fmt(w/v.mi)}</b>.</li><li>Multiplique por 100: <b>${fmt(Math.round(w/v.mi*10000)/100)}%</b>.</li></ol>`;}},
+ cinzas_massa:{e:"🔥",name:"Massa de cinzas",formula:"Cinzas = (cadinho + cinzas) − cadinho vazio",
+  desc:"A amostra é queimada na mufla. Sobra só o resíduo mineral: as cinzas.",
+  fields:[{k:"c0",l:"Cadinho vazio (g)"},{k:"c1",l:"Cadinho + amostra (g) — opcional",opt:true},{k:"c2",l:"Cadinho + cinzas (g)"}],
+  presets:[{l:"Questão 18",v:{c0:10,c1:20,c2:11}},{l:"Questão 29",v:{c0:15,c1:null,c2:15.8}}],
+  check:v=>{if(!(v.c0>=0&&v.c2>v.c0))return "Cadinho + cinzas precisa ser maior que o cadinho vazio.";if(v.c1!==null&&!(v.c1>v.c0&&v.c1>=v.c2))return "Cadinho + amostra precisa ser maior que o cadinho vazio e não menor que cadinho + cinzas.";return null;},
+  scenes:v=>scCinzasMassa(v), steps:v=>`<ol><li>Cadinho vazio = <b>${fmt(v.c0)} g</b>.</li>${v.c1!==null?`<li>Cadinho + amostra = ${fmt(v.c1)} g → amostra = ${fmt(v.c1-v.c0)} g (não entra na conta das cinzas).</li>`:""}<li>Cadinho + cinzas = <b>${fmt(v.c2)} g</b>.</li><li>Cinzas = ${fmt(v.c2)} − ${fmt(v.c0)} = <b>${fmt(v.c2-v.c0)} g</b>.</li></ol>`},
+ cinzas_pct:{e:"📊",name:"Teor de cinzas (%)",formula:"% cinzas = (massa de cinzas ÷ massa da amostra) × 100",
+  desc:"Compare as cinzas com a massa da amostra inicial.",
+  fields:[{k:"cinzas",l:"Massa de cinzas (g)"},{k:"amostra",l:"Massa da amostra (g)"}],
+  presets:[{l:"Questão 19",v:{cinzas:2,amostra:10}},{l:"Cinzas da Q. 18 (1 g em 10 g)",v:{cinzas:1,amostra:10}}],
+  check:v=>(v.amostra>0&&v.cinzas>=0&&v.cinzas<=v.amostra)?null:"A massa de cinzas não pode ser maior que a da amostra.",
+  scenes:v=>scCinzasPct(v), steps:v=>`<ol><li>Cinzas = <b>${fmt(v.cinzas)} g</b>; amostra = <b>${fmt(v.amostra)} g</b>.</li><li>${fmt(v.cinzas)} ÷ ${fmt(v.amostra)} = <b>${fmt(v.cinzas/v.amostra)}</b>.</li><li>× 100 = <b>${fmt(Math.round(v.cinzas/v.amostra*10000)/100)}%</b>.</li></ol>`}
+};
+let calcSt={type:"umidade",vals:null};
+
+function openCalc(type,vals,backToQuiz){
+  studySeg="calc"; calcSt={type,vals:{...vals}}; fromQuiz=!!backToQuiz; autoplay=true; show("study");
+}
+function renderCalc(){
+  const C=CALCS[calcSt.type];
+  if(!calcSt.vals) calcSt.vals={...C.presets[0].v};
+  let h=fromQuiz&&quizActive()?`<button class="btn soft mini" id="bq" style="margin:0 0 10px">↩ Voltar ao quiz</button>`:"";
+  h+=`<div class="chips">`+Object.entries(CALCS).map(([k,c])=>`<button data-t="${k}" class="${calcSt.type===k?"on":""}">${c.e} ${c.name}</button>`).join("")+`</div>
+   <div class="card"><b>${C.e} ${C.name}</b><div class="fml">${C.formula}</div><div style="font-size:14px;color:var(--muted)">${C.desc}</div>
+   <h2 class="sec" style="margin-top:12px">Exemplos da prova</h2><div class="chips" style="margin-bottom:0">${C.presets.map((p,i)=>`<button data-p="${i}">${p.l}</button>`).join("")}</div>
+   <h2 class="sec">Ou use seus números</h2>
+   <div class="fields">${C.fields.map(f=>`<div><label>${f.l}</label><input data-k="${f.k}" inputmode="decimal" value="${calcSt.vals[f.k]===null||calcSt.vals[f.k]===undefined?"":String(calcSt.vals[f.k]).replace(".",",")}"></div>`).join("")}</div>
+   <div class="warnmsg hidden" id="cmsg"></div>
+   <button class="btn vio" id="anim">▶ Animar a conta</button></div>
+   <div id="pbox"><div class="empty" style="padding:18px"><div class="big">🎬</div>Toque em <b>Animar a conta</b> para ver o passo a passo.</div></div>
+   <div class="card steps hidden" id="steps"></div>`;
+  $("sbody").innerHTML=h;
+  if($("bq")) $("bq").onclick=()=>{fromQuiz=false;show("quiz");};
+  $("sbody").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{stopPlayer();calcSt={type:b.dataset.t,vals:null};renderCalc();});
+  $("sbody").querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{calcSt.vals={...C.presets[+b.dataset.p].v};renderCalc();animate();});
+  $("anim").onclick=animate;
+  if(autoplay){autoplay=false;animate();}
+}
+function readVals(C){
+  const v={};
+  for(const f of C.fields){
+    const raw=$("sbody").querySelector(`[data-k="${f.k}"]`).value.trim().replace(",",".");
+    if(raw===""){ if(f.opt){v[f.k]=null;continue;} return null; }
+    const n=parseFloat(raw); if(!isFinite(n)) return null; v[f.k]=n;
+  }
+  return v;
+}
+function animate(){
+  const C=CALCS[calcSt.type], v=readVals(C), msg=$("cmsg");
+  const err=v===null?"Preencha os campos com números (use vírgula ou ponto).":C.check(v);
+  if(err){msg.textContent=err;msg.classList.remove("hidden");return;}
+  msg.classList.add("hidden"); calcSt.vals=v;
+  mountPlayer($("pbox"),C.scenes(v));
+  $("steps").innerHTML=`<b>📝 Passo a passo escrito</b>${C.steps(v)}`; $("steps").classList.remove("hidden");
+  setTimeout(()=>$("pbox").scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+
+/* ---------- Desenhos (SVG/HTML) ---------- */
+function cnt(n,unit){ return `<span class="cnt" data-to="${r4(n)}" data-dec="${decs(n)}">${fmt(n)}</span>${unit||""}`; }
+function animateCounts(root){
+  root.querySelectorAll(".cnt").forEach(el=>{
+    const to=parseFloat(el.dataset.to),d=+el.dataset.dec,t0=performance.now();
+    const step=t=>{const k=Math.min(1,(t-t0)/900),e=1-Math.pow(1-k,3);
+      el.textContent=(to*e).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+      if(k<1&&el.isConnected) requestAnimationFrame(step);};
+    requestAnimationFrame(step);
+  });
+}
+function dish(color,drops){
+  return `<path d="M92 112 Q140 140 188 112 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+   <ellipse cx="140" cy="112" rx="48" ry="9" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+   <ellipse cx="140" cy="109" rx="34" ry="7" fill="${color}"/>
+   ${drops?[[118,98,0],[140,92,.5],[162,98,1]].map(d=>`<circle class="drop" style="animation-delay:${d[2]}s" cx="${d[0]}" cy="${d[1]}" r="4" fill="#38bdf8"/>`).join(""):""}`;
+}
+function cruc(kind){
+  const fill=kind==="sample"?`<ellipse cx="140" cy="78" rx="30" ry="11" fill="#7fb069"/>`:kind==="ash"?`<ellipse cx="140" cy="86" rx="25" ry="5.5" fill="#9ca3af"/>`:`<ellipse cx="140" cy="84" rx="26" ry="5" fill="#cbd5e1"/>`;
+  return `<path d="M106 82 L174 82 L164 126 L116 126 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><ellipse cx="140" cy="82" rx="34" ry="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>${fill}`;
+}
+function svgScale(val,state){
+  const item={wet:dish("#7fb069",true),dry:dish("#c9a46a",false),ash:dish("#9ca3af",false),"c-empty":cruc("empty"),"c-sample":cruc("sample"),"c-ash":cruc("ash")}[state];
+  return `<svg class="vis" viewBox="0 0 280 200" role="img" aria-label="Balança">
+   <ellipse cx="140" cy="190" rx="105" ry="7" fill="rgba(0,0,0,.12)"/>
+   ${item}
+   <rect class="sc-plate" x="68" y="126" width="144" height="12" rx="6"/>
+   <rect class="sc-body" x="40" y="138" width="200" height="46" rx="12"/>
+   <rect class="sc-screen" x="60" y="148" width="128" height="26" rx="6"/>
+   <text class="sc-num" x="124" y="167" text-anchor="middle"><tspan class="cnt" data-to="${r4(val)}" data-dec="${decs(val)}">${fmt(val)}</tspan> g</text>
+   <circle cx="208" cy="161" r="8" fill="#64748b"/><circle cx="208" cy="161" r="3" fill="#94a3b8"/></svg>`;
+}
+function svgOven(kind){
+  const est=kind==="estufa", body=est?"#94a3b8":"#52525b";
+  const inner=est
+   ?`<ellipse cx="140" cy="122" rx="30" ry="9" fill="#cbd5e1"/><ellipse cx="140" cy="118" rx="22" ry="6" class="s-dry" fill="#7fb069"/>
+     ${[[118,100,0],[140,96,.6],[162,100,1.2]].map(d=>`<circle class="drop" style="animation-delay:${d[2]}s" cx="${d[0]}" cy="${d[1]}" r="5.5" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>`).join("")}`
+   :`<path d="M118 100 L162 100 L156 126 L124 126 Z" fill="#e2e8f0"/><ellipse cx="140" cy="100" rx="22" ry="4" fill="#cbd5e1"/><ellipse cx="140" cy="101" rx="16" ry="3.5" class="s-burn" fill="#7fb069"/>
+     ${[[126,88,0],[142,84,.7],[156,88,1.4]].map(d=>`<circle class="smoke" style="animation-delay:${d[2]}s" cx="${d[0]}" cy="${d[1]}" r="6" fill="#d4d4d8"/>`).join("")}`;
+  return `<svg class="vis" viewBox="0 0 280 200" role="img" aria-label="${est?"Estufa":"Mufla"}">
+   <rect x="30" y="34" width="220" height="150" rx="16" fill="${body}"/>
+   <rect x="52" y="56" width="176" height="106" rx="10" fill="#1e293b"/>
+   <rect class="glow" x="52" y="56" width="176" height="106" rx="10" fill="${est?"#fbbf24":"#f97316"}" opacity=".5"/>
+   <rect x="68" y="126" width="144" height="5" rx="2.5" fill="#64748b"/>
+   ${inner}
+   <rect class="pulse" style="transform-box:fill-box;transform-origin:center" x="92" y="6" width="96" height="28" rx="14" fill="${est?"#f59e0b":"#ef4444"}"/>
+   <text x="140" y="25" text-anchor="middle" fill="#fff" font-weight="800" font-size="15">${est?"105 °C":"550 °C"}</text>
+   <circle cx="64" cy="174" r="5" fill="#cbd5e1"/><circle cx="84" cy="174" r="5" fill="#cbd5e1"/></svg>`;
+}
+function eqs(lines){ return `<div class="eqs">${lines.map((l,i)=>`<div class="eq ${l.cls||""}" style="animation-delay:${.3+i*.9}s">${l.h}</div>`).join("")}</div>`; }
+const frac=(a,b)=>`<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+function mbar(total,part,partName,restName,cls){
+  const p=Math.max(0,Math.min(100,part/total*100));
+  return `<div class="mbwrap"><div class="mbar"><div class="solid" style="width:${100-p}%">${p<86?fmt(total-part)+" g":""}</div><div class="part ${cls||""}" style="width:${p}%">${p>=16?fmt(part)+" g":""}</div></div>
+   <div class="legend"><span><i></i>${restName}</span><span><i class="${cls==="ash"?"ash":"w"}"></i>${partName}${p<16?" · "+fmt(part)+" g":""}</span></div><div class="mtot">Massa inicial: <b>${fmt(total)} g</b></div></div>`;
+}
+function resBlock(num,unit,label,ringPct,extra){
+  return `<div class="res"><div class="ring" style="--p:${ringPct}%"><div><span>${cnt(num,unit)}</span></div></div><div class="reslabel">${label}</div>${extra||""}</div>`;
+}
+const N=(c,t)=>`<span class="n-${c}">${t}</span>`;
+
+/* ---------- Cenas ---------- */
+function scAgua(v,withPct){
+  const mi=v.mi,mf=v.mf,w=r4(mi-mf),ratio=w/mi,pct=Math.round(ratio*10000)/100;
+  const ap=Math.abs(ratio-r4(ratio))>1e-9?"≈ ":"", ap2=Math.abs(w/mi*100-pct)>1e-9?"≈ ":"";
+  const sc=[
+   {t:"Pese a amostra úmida",vis:svgScale(mi,"wet"),say:`Antes de secar, a amostra pesa ${N("a",fmt(mi)+" g")}. É a <b>massa inicial</b>.`},
+   {t:"Leve à estufa (105 °C)",vis:svgOven("estufa"),say:`A estufa <b>evapora a água</b> da amostra. Ela fica lá até o peso parar de mudar.`,d:6.5},
+   {t:"Pese de novo",vis:svgScale(mf,"dry"),say:`Sem a água, a amostra pesa ${N("b",fmt(mf)+" g")}. É a <b>massa final</b>.`},
+   {t:"Quanto de água saiu?",d:7,vis:eqs([{h:`Água perdida = massa inicial − massa final`},{h:`Água perdida = ${N("a",fmt(mi))} − ${N("b",fmt(mf))}`},{h:`Água perdida = ${N("r",fmt(w)+" g")}`,cls:"big"}]),say:`O que “sumiu” na estufa foi a água.`}
+  ];
+  if(!withPct){
+    sc.push({t:"Resposta",d:6.5,vis:resBlock(w,"&nbsp;g","Massa de água perdida",100,mbar(mi,w,"água","matéria seca")),say:`Foram perdidos <b>${fmt(w)} g</b> de água.`});
+  } else {
+    sc.push({t:"A fórmula da umidade",d:6,vis:eqs([{h:`% umidade = ${frac("água perdida","massa inicial")} × 100`,cls:"big"}]),say:`Compare a água perdida com a massa inicial e transforme em porcentagem.`});
+    sc.push({t:"Troque pelos números",d:9,vis:eqs([{h:`% umidade = ${frac(N("r",fmt(w)),N("a",fmt(mi)))} × 100`},{h:`% umidade = ${ap}${fmt(ratio)} × 100`},{h:`% umidade = ${N("r",ap2+fmt(pct)+"%")}`,cls:"big"}]),say:`Divida, depois multiplique por 100.`});
+    sc.push({t:"Resposta",d:7,vis:resBlock(pct,"%","Teor de umidade",Math.min(100,pct),mbar(mi,w,"água ("+fmt(pct)+"%)","matéria seca")),say:`A amostra tem <b>${ap2}${fmt(pct)}%</b> de umidade.`});
+  }
+  return sc;
+}
+function scCinzasMassa(v){
+  const {c0,c1,c2}=v, cz=r4(c2-c0), sc=[];
+  sc.push({t:"Pese o cadinho vazio",vis:svgScale(c0,"c-empty"),say:`O cadinho vazio pesa ${N("a",fmt(c0)+" g")}.`});
+  if(c1!==null) sc.push({t:"Coloque a amostra",vis:svgScale(c1,"c-sample"),say:`Cadinho + amostra = ${fmt(c1)} g, ou seja, a amostra tem ${fmt(c1-c0)} g. <b>Esse valor não entra na conta das cinzas.</b>`,d:7});
+  sc.push({t:"Incinere na mufla (550 °C)",vis:svgOven("mufla"),say:`A mufla <b>queima a matéria orgânica</b>. Só o resíduo mineral sobra: as <b>cinzas</b>.`,d:6.5});
+  sc.push({t:"Pese cadinho + cinzas",vis:svgScale(c2,"c-ash"),say:`Agora o conjunto cadinho + cinzas pesa ${N("b",fmt(c2)+" g")}.`});
+  const lines=[{h:`Cinzas = (cadinho + cinzas) − cadinho vazio`},{h:`Cinzas = ${N("b",fmt(c2))} − ${N("a",fmt(c0))}`},{h:`Cinzas = ${N("r",fmt(cz)+" g")}`,cls:"big"}];
+  if(c1!==null) lines.push({h:`⚠️ Não use o ${fmt(c1)} g (cadinho + amostra)!`,cls:"note"});
+  sc.push({t:"Subtraia o cadinho",vis:eqs(lines),say:`Tirando o peso do cadinho, sobra só a massa das cinzas.`,d:c1!==null?9:7});
+  sc.push({t:"Resposta",d:6,vis:resBlock(cz,"&nbsp;g","Massa de cinzas",100,""),say:`A massa de cinzas é <b>${fmt(cz)} g</b>.`});
+  return sc;
+}
+function scCinzasPct(v){
+  const cz=v.cinzas,am=v.amostra,ratio=cz/am,pct=Math.round(ratio*10000)/100;
+  const ap=Math.abs(ratio-r4(ratio))>1e-9?"≈ ":"", ap2=Math.abs(ratio*100-pct)>1e-9?"≈ ":"";
+  return [
+   {t:"Massa da amostra",vis:svgScale(am,"dry"),say:`A amostra inicial pesa ${N("a",fmt(am)+" g")}.`},
+   {t:"Incineração na mufla",vis:svgOven("mufla"),say:`Na mufla, a parte orgânica queima e sobram as <b>cinzas</b>.`,d:6.5},
+   {t:"Pese as cinzas",vis:svgScale(cz,"ash"),say:`As cinzas pesam ${N("b",fmt(cz)+" g")}.`},
+   {t:"A fórmula",d:6,vis:eqs([{h:`% cinzas = ${frac("massa de cinzas","massa da amostra")} × 100`,cls:"big"}]),say:`Compare as cinzas com a massa da amostra.`},
+   {t:"Troque pelos números",d:9,vis:eqs([{h:`% cinzas = ${frac(N("b",fmt(cz)),N("a",fmt(am)))} × 100`},{h:`% cinzas = ${ap}${fmt(ratio)} × 100`},{h:`% cinzas = ${N("r",ap2+fmt(pct)+"%")}`,cls:"big"}]),say:`Divida, depois multiplique por 100.`},
+   {t:"Resposta",d:7,vis:resBlock(pct,"%","Teor de cinzas",Math.min(100,pct),mbar(am,cz,"cinzas ("+fmt(pct)+"%)","parte orgânica e água","ash")),say:`A amostra tem <b>${ap2}${fmt(pct)}%</b> de cinzas.`}
+  ];
+}
+
+/* ---------- Player (vídeo curto) ---------- */
+const P={scenes:[],i:0,playing:false,timer:null,speed:1,rem:0,t0:0,box:null};
+function stopPlayer(){ clearTimeout(P.timer); P.timer=null; if(P.playing){P.playing=false;} const pl=document.getElementById("player"); if(pl) pl.classList.add("paused"); const b=document.getElementById("pplay"); if(b) b.textContent="▶"; }
+function mountPlayer(box,scenes){
+  clearTimeout(P.timer); P.box=box; P.scenes=scenes; P.i=0; P.playing=true;
+  box.innerHTML=`<div class="player" id="player"><div class="stitle"><span id="ptitle"></span><span id="pcount"></span></div>
+   <div class="screen" id="pscreen"></div><div class="segs" id="psegs"></div>
+   <div class="ctrl"><button class="cb" id="pprev" aria-label="Anterior">⏮</button><button class="cb big" id="pplay" aria-label="Pausar">⏸</button><button class="cb" id="pnext" aria-label="Próxima">⏭</button><button class="cb sp" id="pspeed">${P.speed===1?"1×":"0,5×"}</button></div></div>`;
+  $("pprev").onclick=()=>{P.playing=true;go(Math.max(0,P.i-1));};
+  $("pnext").onclick=()=>{P.playing=true;go(Math.min(P.scenes.length-1,P.i+1));};
+  $("pspeed").onclick=()=>{P.speed=P.speed===1?0.5:1;$("pspeed").textContent=P.speed===1?"1×":"0,5×";P.playing=true;go(P.i);};
+  $("pplay").onclick=togglePlay;
+  go(0);
+}
+function schedule(ms){
+  clearTimeout(P.timer); P.rem=ms; P.t0=performance.now();
+  P.timer=setTimeout(()=>{ if(P.i<P.scenes.length-1) go(P.i+1); else {P.playing=false;$("pplay").textContent="🔁";$("player").classList.add("paused");} },ms);
+}
+function go(i){
+  const sc=P.scenes[i]; P.i=i;
+  const dur=(sc.d||5.5)/P.speed;
+  $("pscreen").innerHTML=`<div class="scene">${sc.vis}<div class="cap">${sc.say}</div></div>`;
+  $("ptitle").textContent=`${i+1}. ${sc.t}`; $("pcount").textContent=`Cena ${i+1} de ${P.scenes.length}`;
+  $("psegs").innerHTML=P.scenes.map((_,k)=>`<button data-i="${k}" class="${k<i?"done":k===i?"cur":""}" style="--d:${dur}s" aria-label="Cena ${k+1}"><i></i></button>`).join("");
+  $("psegs").querySelectorAll("button").forEach(b=>b.onclick=()=>{P.playing=true;go(+b.dataset.i);});
+  animateCounts($("pscreen"));
+  const pl=$("player");
+  if(P.playing){ pl.classList.remove("paused"); $("pplay").textContent="⏸"; schedule(dur*1000); }
+  else { clearTimeout(P.timer); pl.classList.add("paused"); $("pplay").textContent="▶"; }
+}
+function togglePlay(){
+  const pl=$("player");
+  if(P.playing){ P.playing=false; clearTimeout(P.timer); P.rem=Math.max(300,P.rem-(performance.now()-P.t0)); pl.classList.add("paused"); $("pplay").textContent="▶"; }
+  else {
+    const atEnd=$("pplay").textContent==="🔁";
+    P.playing=true;
+    if(atEnd){ go(0); return; }
+    pl.classList.remove("paused"); $("pplay").textContent="⏸"; schedule(P.rem||2000);
+  }
+}
+
+/* =====================  INÍCIO DO APP  ===================== */
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) stopPlayer(); });
+FFLicense.gate("farma",function(){ load(); updateChrome(); show("home"); });
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>
