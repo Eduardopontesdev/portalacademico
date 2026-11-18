@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Central de Estudos</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#0f766e;--brand-soft:#ccfbf1;--ok:#059669;--ok-soft:#d1fae5;--err:#e11d48;--err-soft:#ffe4e6;--warn:#d97706;--warn-soft:#fef3c7;--shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#131c2e;--text:#e5edf7;--muted:#94a3b8;--line:#243049;--brand:#14b8a6;--brand-soft:#0f2f2c;--ok:#34d399;--ok-soft:#08302a;--err:#fb7185;--err-soft:#3a1420;--warn:#fbbf24;--warn-soft:#3a2a0a;--shadow:none}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+button,a{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.wrap{max-width:640px;margin:0 auto;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 28px)}
+.top{padding:calc(env(safe-area-inset-top,0px) + 22px) 20px 26px;background:linear-gradient(135deg,#0f766e,#115e59 60%,#134e4a);color:#fff;border-radius:0 0 26px 26px;box-shadow:0 6px 20px rgba(15,118,110,.25)}
+.top .ic{width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:26px}
+.top h1{margin:12px 0 2px;font-size:24px;letter-spacing:-.01em}
+.top p{margin:0;opacity:.85;font-size:14px}
+.body{padding:16px}
+h2.sec{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:20px 4px 9px;font-weight:800}
+h2.sec:first-child{margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+
+.mod{display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;transition:transform .1s;position:relative;overflow:hidden}
+.mod:active{transform:scale(.985)}
+.mod .me{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-size:30px;flex-shrink:0}
+.mod.m1 .me{background:linear-gradient(135deg,#fde68a,#fb923c)}
+.mod.m2 .me{background:linear-gradient(135deg,#a7f3d0,#14b8a6)}
+.mod b{display:block;font-size:17px}
+.mod small{display:block;color:var(--muted);font-size:13px;margin:2px 0 6px}
+.mod .go{margin-left:auto;font-size:22px;color:var(--muted)}
+.tag{display:inline-block;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:99px}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.none{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.tag.exp{background:var(--warn-soft);color:var(--warn)}
+
+.idbox{text-align:center}
+.idbox small{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.idbox b{display:block;font-size:32px;letter-spacing:.12em;font-family:ui-monospace,Menlo,monospace;color:var(--brand);margin:4px 0 2px}
+.idbox p{margin:4px 0 10px;font-size:13.5px;color:var(--muted)}
+.btn{display:block;width:100%;padding:13px;border-radius:14px;font-weight:800;font-size:15px;text-align:center;text-decoration:none;margin-top:8px;background:var(--brand);color:#fff}
+.btn.soft{background:var(--bg);color:var(--text);border:1px solid var(--line)}
+.btn.wa{background:#16a34a}
+textarea{width:100%;min-height:84px;border:2px solid var(--line);border-radius:14px;padding:12px;background:var(--bg);color:var(--text);font-size:13px;font-family:ui-monospace,Menlo,monospace;resize:vertical;outline:none}
+textarea:focus{border-color:var(--brand)}
+.msg{margin-top:10px;font-size:14px;font-weight:700;border-radius:12px;padding:10px 12px}
+.msg.ok{background:var(--ok-soft);color:var(--ok)}.msg.err{background:var(--err-soft);color:var(--err)}
+.hidden{display:none!important}
+ol.how{margin:6px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+ol.how li{margin:6px 0}
+ol.how b{color:var(--text)}
+.warn{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="ic">📚</div>
+    <h1>Central de Estudos</h1>
+    <p>Escolha um módulo para estudar e praticar</p>
+  </header>
+
+  <div class="body">
+    <div id="notice" class="msg hidden"></div>
+
+    <h2 class="sec">Módulos</h2>
+    <div id="mods"></div>
+
+    <h2 class="sec">Seu acesso</h2>
+    <div class="card idbox">
+      <small>Seu ID de acesso</small>
+      <b id="devid">----</b>
+      <p>Envie este ID para receber o código de liberação.</p>
+      <button class="btn soft" id="copyid" style="margin-top:0">Copiar ID</button>
+      <a class="btn wa hidden" id="wa" target="_blank" rel="noopener">💬 Pedir liberação no WhatsApp</a>
+      <div class="warn hidden" id="nopersist">⚠️ Este navegador não está guardando dados (modo privado?). Use uma aba normal para o ID não mudar.</div>
+    </div>
+
+    <div class="card">
+      <b>Tenho um código</b>
+      <textarea id="code" placeholder="Cole aqui o código (FF1.xxxxx.yyyyy)" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      <button class="btn" id="go">Ativar acesso</button>
+      <div class="msg hidden" id="msg"></div>
+    </div>
+
+    <h2 class="sec">Como liberar</h2>
+    <div class="card">
+      <ol class="how">
+        <li><b>Copie seu ID</b> acima e envie para o administrador.</li>
+        <li>Você recebe um <b>código</b> (ou um link de ativação).</li>
+        <li>Cole o código e toque em <b>Ativar acesso</b>.</li>
+      </ol>
+      <p style="font-size:13px;color:var(--muted);margin:10px 0 0">O acesso tem validade. Quando expirar, é só pedir um novo código com o mesmo ID.</p>
+    </div>
+  </div>
+</div>
+
+<script src="modulos.js"></script>
+<script src="license.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const MODS=window.FF_MODULOS||[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function drawMods(){
+  $("mods").innerHTML=MODS.map(m=>`<a class="card mod" href="${esc(m.pasta)}/index.html"><span class="me" style="background:linear-gradient(135deg,${m.cor[0]},${m.cor[1]})">${m.emoji}</span><span><b>${esc(m.nome)}</b><small>${esc(m.descricao)}</small><span class="tag none" id="t-${esc(m.id)}">Verificando…</span></span><span class="go">›</span></a>`).join("");
+}
+async function refresh(){
+  for(const m of MODS.map(x=>x.id)){
+    const s=await FFLicense.status(m), el=$("t-"+m);
+    if(s.state==="ok"){ el.className="tag ok"; el.textContent="🔓 Liberado até "+FFLicense.brDate(s.exp); }
+    else if(s.state==="expired"){ el.className="tag exp"; el.textContent="⏰ Expirou em "+FFLicense.brDate(s.exp); }
+    else { el.className="tag none"; el.textContent="🔒 Bloqueado"; }
+  }
+}
+async function start(){
+  drawMods();
+  $("devid").textContent=FFLicense.deviceId();
+  if(!FFLicense.isPersisted()) $("nopersist").classList.remove("hidden");
+  const w=FFLicense.waLink(""); if(w){ $("wa").href=w; $("wa").classList.remove("hidden"); }
+  $("copyid").onclick=function(){ FFLicense.copy(FFLicense.deviceId(),this); };
+  $("go").onclick=async()=>{
+    const v=$("code").value, m=$("msg"); m.classList.remove("hidden");
+    if(!v.trim()){ m.className="msg err"; m.textContent="Cole o código recebido."; return; }
+    const r=await FFLicense.activate(v); m.className="msg "+(r.ok?"ok":"err"); m.textContent=r.msg;
+    if(r.ok){ $("code").value=""; refresh(); }
+  };
+  const n=await FFLicense.fromHash();
+  if(n){ const e=$("notice"); e.className="msg "+(n.ok?"ok":"err"); e.textContent=n.msg; }
+  refresh();
+}
+if(window.crypto&&crypto.subtle) start();
+else { $("devid").textContent="----"; const e=$("notice"); e.className="msg err"; e.textContent="Abra este site pelo endereço https em um navegador atualizado."; }
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>
