@@ -1,4 +1,4 @@
-const CACHE = "central-v2";
+const CACHE = "central-v3";
 const ASSETS = ["./", "./index.html", "./license.js", "./modulos.js", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
