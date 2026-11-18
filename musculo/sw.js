@@ -1,4 +1,4 @@
-const CACHE = "musculoapp-v5";
+const CACHE = "musculoapp-v6";
 const ASSETS = ["./", "./index.html", "../license.js", "../modulos.js", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
