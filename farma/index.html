@@ -602,17 +602,42 @@ const CALCS={
   check:v=>(v.amostra>0&&v.cinzas>=0&&v.cinzas<=v.amostra)?null:"A massa de cinzas não pode ser maior que a da amostra.",
   scenes:v=>scCinzasPct(v), steps:v=>`<ol><li>Cinzas = <b>${fmt(v.cinzas)} g</b>; amostra = <b>${fmt(v.amostra)} g</b>.</li><li>${fmt(v.cinzas)} ÷ ${fmt(v.amostra)} = <b>${fmt(v.cinzas/v.amostra)}</b>.</li><li>× 100 = <b>${fmt(Math.round(v.cinzas/v.amostra*10000)/100)}%</b>.</li></ol>`}
 };
-let calcSt={type:"umidade",vals:null};
+let calcSt={type:"umidade",vals:null,alt:false};
+/* ---------- modo "com cápsula/cadinho vazio" (tara) ---------- */
+const CAP_F=[{k:"c0",l:"Cápsula vazia (g)"},{k:"c1",l:"Cápsula + amostra úmida (g)"},{k:"c2",l:"Cápsula + amostra seca (g)"}];
+const CAP_CK=v=>(v.c0>=0&&v.c1>v.c0&&v.c2>=v.c0&&v.c1>v.c2)?null:"Use: cápsula vazia ≤ cápsula + amostra seca < cápsula + amostra úmida.";
+const capSteps=(v,pct)=>{
+  const mi=r4(v.c1-v.c0),mf=r4(v.c2-v.c0),w=r4(mi-mf);
+  let h=`<ol><li>Massa inicial = ${fmt(v.c1)} − ${fmt(v.c0)} = <b>${fmt(mi)} g</b>.</li><li>Massa final = ${fmt(v.c2)} − ${fmt(v.c0)} = <b>${fmt(mf)} g</b>.</li><li>Água perdida = ${fmt(mi)} − ${fmt(mf)} = <b>${fmt(w)} g</b>.</li>`;
+  if(pct) h+=`<li>% umidade = (${fmt(w)} ÷ ${fmt(mi)}) × 100 = <b>${fmt(Math.round(w/mi*10000)/100)}%</b>.</li>`;
+  return h+"</ol>";
+};
+CALCS.agua.l0="Só as massas";
+CALCS.agua.alt={l:"Com cápsula vazia",desc:"Pese a cápsula vazia (tara), depois com a amostra úmida e, após a estufa, com a amostra seca. A cápsula é descontada.",
+  fields:CAP_F,presets:[{l:"Questão 17 com cápsula",v:{c0:30,c1:50,c2:48}}],check:CAP_CK,scenes:v=>scAguaCap(v,false),steps:v=>capSteps(v,false)};
+CALCS.umidade.l0="Só as massas";
+CALCS.umidade.alt={l:"Com cápsula vazia",desc:"Pese a cápsula vazia (tara), depois com a amostra úmida e, após a estufa, com a amostra seca. Desconte a cápsula e calcule a umidade.",
+  fields:CAP_F,presets:[{l:"Questão 16 com cápsula",v:{c0:30,c1:40,c2:39}},{l:"Questão 28 com cápsula",v:{c0:25,c1:40,c2:37}},{l:"Questão 30 com cápsula",v:{c0:28,c1:48,c2:44}}],check:CAP_CK,scenes:v=>scAguaCap(v,true),steps:v=>capSteps(v,true)};
+CALCS.cinzas_pct.l0="Só as massas";
+CALCS.cinzas_pct.alt={l:"Com cadinho vazio",desc:"Pese o cadinho vazio (tara), com a amostra e, depois da mufla, com as cinzas. Desconte o cadinho e calcule o teor de cinzas.",
+  fields:[{k:"c0",l:"Cadinho vazio (g)"},{k:"c1",l:"Cadinho + amostra (g)"},{k:"c2",l:"Cadinho + cinzas (g)"}],
+  presets:[{l:"Questão 19 com cadinho",v:{c0:12,c1:22,c2:14}},{l:"Cadinho da Q. 18 → teor (%)",v:{c0:10,c1:20,c2:11}}],
+  check:v=>(v.c0>=0&&v.c1>v.c0&&v.c2>=v.c0&&v.c2<=v.c1)?null:"Cadinho + cinzas não pode ser maior que cadinho + amostra.",
+  scenes:v=>scCinzasPctCad(v),
+  steps:v=>{const am=r4(v.c1-v.c0),cz=r4(v.c2-v.c0);return `<ol><li>Amostra = ${fmt(v.c1)} − ${fmt(v.c0)} = <b>${fmt(am)} g</b>.</li><li>Cinzas = ${fmt(v.c2)} − ${fmt(v.c0)} = <b>${fmt(cz)} g</b>.</li><li>% cinzas = (${fmt(cz)} ÷ ${fmt(am)}) × 100 = <b>${fmt(Math.round(cz/am*10000)/100)}%</b>.</li></ol>`;}};
+const cur=()=>{ const C=CALCS[calcSt.type]; return (calcSt.alt&&C.alt)?Object.assign({},C,C.alt):C; };
+
 
 function openCalc(type,vals,backToQuiz){
-  studySeg="calc"; calcSt={type,vals:{...vals}}; fromQuiz=!!backToQuiz; autoplay=true; show("study");
+  studySeg="calc"; calcSt={type,vals:{...vals},alt:false}; fromQuiz=!!backToQuiz; autoplay=true; show("study");
 }
 function renderCalc(){
-  const C=CALCS[calcSt.type];
+  const C0=CALCS[calcSt.type], C=cur();
   if(!calcSt.vals) calcSt.vals={...C.presets[0].v};
   let h=fromQuiz&&quizActive()?`<button class="btn soft mini" id="bq" style="margin:0 0 10px">↩ Voltar ao quiz</button>`:"";
   h+=`<div class="chips">`+Object.entries(CALCS).map(([k,c])=>`<button data-t="${k}" class="${calcSt.type===k?"on":""}">${c.e} ${c.name}</button>`).join("")+`</div>
    <div class="card"><b>${C.e} ${C.name}</b><div class="fml">${C.formula}</div><div style="font-size:14px;color:var(--muted)">${C.desc}</div>
+   ${C0.alt?`<div class="seg" style="margin-top:12px"><button data-mode="0" class="${!calcSt.alt?"on":""}">${C0.l0||"Só as massas"}</button><button data-mode="1" class="${calcSt.alt?"on":""}">${C0.alt.l}</button></div>`:""}
    <h2 class="sec" style="margin-top:12px">Exemplos da prova</h2><div class="chips" style="margin-bottom:0">${C.presets.map((p,i)=>`<button data-p="${i}">${p.l}</button>`).join("")}</div>
    <h2 class="sec">Ou use seus números</h2>
    <div class="fields">${C.fields.map(f=>`<div><label>${f.l}</label><input data-k="${f.k}" inputmode="decimal" value="${calcSt.vals[f.k]===null||calcSt.vals[f.k]===undefined?"":String(calcSt.vals[f.k]).replace(".",",")}"></div>`).join("")}</div>
@@ -622,9 +647,10 @@ function renderCalc(){
    <div class="card steps hidden" id="steps"></div>`;
   $("sbody").innerHTML=h;
   if($("bq")) $("bq").onclick=()=>{fromQuiz=false;show("quiz");};
-  $("sbody").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{stopPlayer();calcSt={type:b.dataset.t,vals:null};renderCalc();});
+  $("sbody").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{stopPlayer();calcSt={type:b.dataset.t,vals:null,alt:false};renderCalc();});
   $("sbody").querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{calcSt.vals={...C.presets[+b.dataset.p].v};renderCalc();animate();});
   $("anim").onclick=animate;
+  $("sbody").querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{stopPlayer();calcSt.alt=b.dataset.mode==="1";calcSt.vals=null;renderCalc();});
   if(autoplay){autoplay=false;animate();}
 }
 function readVals(C){
@@ -637,7 +663,7 @@ function readVals(C){
   return v;
 }
 function animate(){
-  const C=CALCS[calcSt.type], v=readVals(C), msg=$("cmsg");
+  const C=cur(), v=readVals(C), msg=$("cmsg");
   const err=v===null?"Preencha os campos com números (use vírgula ou ponto).":C.check(v);
   if(err){msg.textContent=err;msg.classList.remove("hidden");return;}
   msg.classList.add("hidden"); calcSt.vals=v;
@@ -660,7 +686,7 @@ function animateCounts(root){
 function dish(color,drops){
   return `<path d="M92 112 Q140 140 188 112 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
    <ellipse cx="140" cy="112" rx="48" ry="9" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
-   <ellipse cx="140" cy="109" rx="34" ry="7" fill="${color}"/>
+   ${color?`<ellipse cx="140" cy="109" rx="34" ry="7" fill="${color}"/>`:""}
    ${drops?[[118,98,0],[140,92,.5],[162,98,1]].map(d=>`<circle class="drop" style="animation-delay:${d[2]}s" cx="${d[0]}" cy="${d[1]}" r="4" fill="#38bdf8"/>`).join(""):""}`;
 }
 function cruc(kind){
@@ -668,7 +694,7 @@ function cruc(kind){
   return `<path d="M106 82 L174 82 L164 126 L116 126 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><ellipse cx="140" cy="82" rx="34" ry="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>${fill}`;
 }
 function svgScale(val,state){
-  const item={wet:dish("#7fb069",true),dry:dish("#c9a46a",false),ash:dish("#9ca3af",false),"c-empty":cruc("empty"),"c-sample":cruc("sample"),"c-ash":cruc("ash")}[state];
+  const item={wet:dish("#7fb069",true),dry:dish("#c9a46a",false),ash:dish("#9ca3af",false),"cap-empty":dish(null,false),"cap-wet":dish("#7fb069",true),"cap-dry":dish("#c9a46a",false),"c-empty":cruc("empty"),"c-sample":cruc("sample"),"c-ash":cruc("ash")}[state];
   return `<svg class="vis" viewBox="0 0 280 200" role="img" aria-label="Balança">
    <ellipse cx="140" cy="190" rx="105" ry="7" fill="rgba(0,0,0,.12)"/>
    ${item}
@@ -708,13 +734,10 @@ function resBlock(num,unit,label,ringPct,extra){
 const N=(c,t)=>`<span class="n-${c}">${t}</span>`;
 
 /* ---------- Cenas ---------- */
-function scAgua(v,withPct){
-  const mi=v.mi,mf=v.mf,w=r4(mi-mf),ratio=w/mi,pct=Math.round(ratio*10000)/100;
+function tailAgua(mi,mf,withPct){
+  const w=r4(mi-mf),ratio=w/mi,pct=Math.round(ratio*10000)/100;
   const ap=Math.abs(ratio-r4(ratio))>1e-9?"≈ ":"", ap2=Math.abs(w/mi*100-pct)>1e-9?"≈ ":"";
   const sc=[
-   {t:"Pese a amostra úmida",vis:svgScale(mi,"wet"),say:`Antes de secar, a amostra pesa ${N("a",fmt(mi)+" g")}. É a <b>massa inicial</b>.`},
-   {t:"Leve à estufa (105 °C)",vis:svgOven("estufa"),say:`A estufa <b>evapora a água</b> da amostra. Ela fica lá até o peso parar de mudar.`,d:6.5},
-   {t:"Pese de novo",vis:svgScale(mf,"dry"),say:`Sem a água, a amostra pesa ${N("b",fmt(mf)+" g")}. É a <b>massa final</b>.`},
    {t:"Quanto de água saiu?",d:7,vis:eqs([{h:`Água perdida = massa inicial − massa final`},{h:`Água perdida = ${N("a",fmt(mi))} − ${N("b",fmt(mf))}`},{h:`Água perdida = ${N("r",fmt(w)+" g")}`,cls:"big"}]),say:`O que “sumiu” na estufa foi a água.`}
   ];
   if(!withPct){
@@ -726,6 +749,27 @@ function scAgua(v,withPct){
   }
   return sc;
 }
+function scAgua(v,withPct){
+  const mi=v.mi,mf=v.mf;
+  return [
+   {t:"Pese a amostra úmida",vis:svgScale(mi,"wet"),say:`Antes de secar, a amostra pesa ${N("a",fmt(mi)+" g")}. É a <b>massa inicial</b>.`},
+   {t:"Leve à estufa (105 °C)",vis:svgOven("estufa"),say:`A estufa <b>evapora a água</b> da amostra. Ela fica lá até o peso parar de mudar.`,d:6.5},
+   {t:"Pese de novo",vis:svgScale(mf,"dry"),say:`Sem a água, a amostra pesa ${N("b",fmt(mf)+" g")}. É a <b>massa final</b>.`}
+  ].concat(tailAgua(mi,mf,withPct));
+}
+// Versão com cápsula vazia (tara): cápsula vazia, cápsula + amostra úmida, cápsula + amostra seca
+function scAguaCap(v,withPct){
+  const {c0,c1,c2}=v, mi=r4(c1-c0), mf=r4(c2-c0), w=r4(mi-mf);
+  return [
+   {t:"Pese a cápsula vazia",vis:svgScale(c0,"cap-empty"),say:`A cápsula vazia pesa ${N("a",fmt(c0)+" g")}. Esse valor é a <b>tara</b>: vamos descontá-lo depois.`},
+   {t:"Coloque a amostra úmida",vis:svgScale(c1,"cap-wet"),say:`Cápsula + amostra úmida = ${N("b",fmt(c1)+" g")}.`},
+   {t:"Massa inicial da amostra",d:8,vis:eqs([{h:`Massa inicial = (cápsula + amostra) − cápsula vazia`},{h:`Massa inicial = ${N("b",fmt(c1))} − ${N("a",fmt(c0))}`},{h:`Massa inicial = ${N("r",fmt(mi)+" g")}`,cls:"big"}]),say:`Tirando a cápsula, a amostra úmida pesa ${fmt(mi)} g.`},
+   {t:"Leve à estufa (105 °C)",vis:svgOven("estufa"),say:`A estufa <b>evapora a água</b>. Ela fica lá até o peso parar de mudar.`,d:6.5},
+   {t:"Pese cápsula + amostra seca",vis:svgScale(c2,"cap-dry"),say:`Depois de seca, o conjunto cápsula + amostra pesa ${N("b",fmt(c2)+" g")}.`},
+   {t:"Massa final da amostra",d:9,vis:eqs([{h:`Massa final = ${N("b",fmt(c2))} − ${N("a",fmt(c0))}`},{h:`Massa final = ${N("r",fmt(mf)+" g")}`,cls:"big"},{h:`💡 A cápsula some da conta: água = ${fmt(c1)} − ${fmt(c2)} = ${fmt(w)} g`,cls:"note"}]),say:`Descontamos de novo a cápsula para achar só a amostra seca.`}
+  ].concat(tailAgua(mi,mf,withPct));
+}
+
 function scCinzasMassa(v){
   const {c0,c1,c2}=v, cz=r4(c2-c0), sc=[];
   sc.push({t:"Pese o cadinho vazio",vis:svgScale(c0,"c-empty"),say:`O cadinho vazio pesa ${N("a",fmt(c0)+" g")}.`});
@@ -738,17 +782,33 @@ function scCinzasMassa(v){
   sc.push({t:"Resposta",d:6,vis:resBlock(cz,"&nbsp;g","Massa de cinzas",100,""),say:`A massa de cinzas é <b>${fmt(cz)} g</b>.`});
   return sc;
 }
-function scCinzasPct(v){
-  const cz=v.cinzas,am=v.amostra,ratio=cz/am,pct=Math.round(ratio*10000)/100;
+function tailCinzasPct(cz,am){
+  const ratio=cz/am,pct=Math.round(ratio*10000)/100;
   const ap=Math.abs(ratio-r4(ratio))>1e-9?"≈ ":"", ap2=Math.abs(ratio*100-pct)>1e-9?"≈ ":"";
   return [
-   {t:"Massa da amostra",vis:svgScale(am,"dry"),say:`A amostra inicial pesa ${N("a",fmt(am)+" g")}.`},
-   {t:"Incineração na mufla",vis:svgOven("mufla"),say:`Na mufla, a parte orgânica queima e sobram as <b>cinzas</b>.`,d:6.5},
-   {t:"Pese as cinzas",vis:svgScale(cz,"ash"),say:`As cinzas pesam ${N("b",fmt(cz)+" g")}.`},
    {t:"A fórmula",d:6,vis:eqs([{h:`% cinzas = ${frac("massa de cinzas","massa da amostra")} × 100`,cls:"big"}]),say:`Compare as cinzas com a massa da amostra.`},
    {t:"Troque pelos números",d:9,vis:eqs([{h:`% cinzas = ${frac(N("b",fmt(cz)),N("a",fmt(am)))} × 100`},{h:`% cinzas = ${ap}${fmt(ratio)} × 100`},{h:`% cinzas = ${N("r",ap2+fmt(pct)+"%")}`,cls:"big"}]),say:`Divida, depois multiplique por 100.`},
    {t:"Resposta",d:7,vis:resBlock(pct,"%","Teor de cinzas",Math.min(100,pct),mbar(am,cz,"cinzas ("+fmt(pct)+"%)","parte orgânica e água","ash")),say:`A amostra tem <b>${ap2}${fmt(pct)}%</b> de cinzas.`}
   ];
+}
+function scCinzasPct(v){
+  const cz=v.cinzas,am=v.amostra;
+  return [
+   {t:"Massa da amostra",vis:svgScale(am,"dry"),say:`A amostra inicial pesa ${N("a",fmt(am)+" g")}.`},
+   {t:"Incineração na mufla",vis:svgOven("mufla"),say:`Na mufla, a parte orgânica queima e sobram as <b>cinzas</b>.`,d:6.5},
+   {t:"Pese as cinzas",vis:svgScale(cz,"ash"),say:`As cinzas pesam ${N("b",fmt(cz)+" g")}.`}
+  ].concat(tailCinzasPct(cz,am));
+}
+// Versão com cadinho vazio (tara): cadinho vazio, cadinho + amostra, cadinho + cinzas
+function scCinzasPctCad(v){
+  const {c0,c1,c2}=v, am=r4(c1-c0), cz=r4(c2-c0);
+  return [
+   {t:"Pese o cadinho vazio",vis:svgScale(c0,"c-empty"),say:`O cadinho vazio pesa ${N("a",fmt(c0)+" g")}. É a <b>tara</b>.`},
+   {t:"Coloque a amostra",vis:svgScale(c1,"c-sample"),say:`Cadinho + amostra = ${N("b",fmt(c1)+" g")}.`},
+   {t:"Incinere na mufla (550 °C)",vis:svgOven("mufla"),say:`A mufla <b>queima a matéria orgânica</b>. Só o resíduo mineral sobra: as <b>cinzas</b>.`,d:6.5},
+   {t:"Pese cadinho + cinzas",vis:svgScale(c2,"c-ash"),say:`Agora o conjunto cadinho + cinzas pesa ${N("b",fmt(c2)+" g")}.`},
+   {t:"Desconte o cadinho",d:9,vis:eqs([{h:`Amostra = ${N("b",fmt(c1))} − ${N("a",fmt(c0))} = ${N("r",fmt(am)+" g")}`},{h:`Cinzas = ${N("b",fmt(c2))} − ${N("a",fmt(c0))} = ${N("r",fmt(cz)+" g")}`,cls:"big"}]),say:`Tirando o peso do cadinho, achamos a massa da amostra e a das cinzas.`}
+  ].concat(tailCinzasPct(cz,am));
 }
 
 /* ---------- Player (vídeo curto) ---------- */
@@ -795,7 +855,7 @@ function togglePlay(){
 /* =====================  INÍCIO DO APP  ===================== */
 document.addEventListener("visibilitychange",()=>{ if(document.hidden) stopPlayer(); });
 FFLicense.gate("farma",function(){ load(); updateChrome(); show("home"); });
-if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("../sw.js").catch(()=>{}); }); }
 </script>
 </body>
 </html>
