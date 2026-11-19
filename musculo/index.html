@@ -1023,7 +1023,7 @@ document.addEventListener("keydown",e=>{
 FFLicense.gate("musculo",function(){ load(); updateChrome(); show("home"); });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+  window.addEventListener("load",()=>{ navigator.serviceWorker.register("../sw.js").catch(()=>{}); });
 }
 </script>
 </body>
