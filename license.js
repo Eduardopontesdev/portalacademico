@@ -17,7 +17,9 @@ var CFG = {
   pub: {"kty":"EC","crv":"P-256","x":"L09CJ5-QFUQzgksQXTV7YVtDyPaGMknyH2GyfWk-PQc","y":"yQZ23yHNte2ISSEjCAqaRf57amqfgzfD5rBU1LrTgCw"}
 };
 
-var LS = { dev:"ff_dev", lic:"ff_lics", seen:"ff_seen" };
+var LS = { dev:"ff_dev", lic:"ff_lics", seen:"ff_seen", rem:"ff_rem" };
+// pasta onde este arquivo está (para achar acessos.json)
+var BASE = (function(){ var s=document.currentScript; return s&&s.src ? s.src.replace(/[^\/]*$/,"") : ""; })();
 var ALPHA = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"; // sem 0/O/1/I/L
 
 /* ---------- utilitários ---------- */
@@ -79,16 +81,65 @@ function allows(p,mod){ return p.m==="*" || (Array.isArray(p.m) && p.m.indexOf(m
 
 function stored(){ try{ var a=JSON.parse(lsGet(LS.lic)||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 
+/* ---------- lista online (acessos.json), assinada pelo administrador ---------- */
+var myHashP = null;
+function myHash(){
+  if(!myHashP){
+    var enc=new TextEncoder();
+    myHashP = crypto.subtle.importKey("raw",enc.encode(deviceId()),"PBKDF2",false,["deriveBits"]).then(function(k){
+      return crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:enc.encode("ff1-acessos"),iterations:100000},k,128);
+    }).then(function(bits){ var s="",a=new Uint8Array(bits); for(var i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); });
+  }
+  return myHashP;
+}
+async function verifyList(o){
+  if(!o||!o.p||!o.s) return null;
+  var key=await pubKey();
+  var ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},key,b64uToBytes(o.s),new TextEncoder().encode(o.p));
+  if(!ok) return null;
+  var d=JSON.parse(bytesToStr(b64uToBytes(o.p)));
+  return (d&&Array.isArray(d.i))?d:null;
+}
+async function remoteGrants(){
+  try{
+    var raw=lsGet(LS.rem); if(!raw) return [];
+    var v=await verifyList(JSON.parse(raw)); if(!v) return [];
+    var h=await myHash();
+    return v.i.filter(function(x){ return x&&x.h===h&&x.e&&x.m; });
+  }catch(e){ return []; }
+}
+// Busca a lista publicada no site. Retorna true se baixou uma lista válida.
+async function sync(ms){
+  try{
+    if(!window.crypto||!crypto.subtle||!BASE) return false;
+    var ctl=("AbortController" in window)?new AbortController():null;
+    var to=setTimeout(function(){ if(ctl) ctl.abort(); },ms||3000);
+    var res=await fetch(BASE+"acessos.json?t="+Date.now(),{cache:"no-store",signal:ctl?ctl.signal:undefined});
+    clearTimeout(to);
+    if(!res.ok) return false;
+    var o=await res.json(), v=await verifyList(o); if(!v) return false;
+    var cur=null; try{ cur=JSON.parse(lsGet(LS.rem)||"null"); }catch(e){}
+    if(cur){ var cv=await verifyList(cur); if(cv&&cv.g>v.g) return false; }   // nunca volta para uma lista mais antiga
+    lsSet(LS.rem,JSON.stringify({p:o.p,s:o.s}));
+    return true;
+  }catch(e){ return false; }
+}
+
 // Situação de um módulo: {state:"ok"|"expired"|"none", exp:"YYYY-MM-DD"}
 async function status(mod){
-  var dev = deviceId(), td = today(), best = null, expired = null;
-  var codes = stored();
+  var dev=deviceId(), td=today(), best=null, expired=null, cands=[];
+  var codes=stored();
   for(var i=0;i<codes.length;i++){
-    var r = await parse(codes[i]);
-    if(!r.ok || normId(r.p.d)!==dev || !allows(r.p,mod)) continue;
-    if(r.p.e >= td){ if(!best || r.p.e>best) best = r.p.e; }
-    else if(!expired || r.p.e>expired) expired = r.p.e;
+    var r=await parse(codes[i]);
+    if(r.ok && normId(r.p.d)===dev) cands.push(r.p);
   }
+  var rem=await remoteGrants();
+  for(var j=0;j<rem.length;j++) cands.push(rem[j]);
+  cands.forEach(function(p){
+    if(!allows(p,mod)) return;
+    if(p.e>=td){ if(!best||p.e>best) best=p.e; }
+    else if(!expired||p.e>expired) expired=p.e;
+  });
   if(best) return {state:"ok",exp:best};
   if(expired) return {state:"expired",exp:expired};
   return {state:"none"};
@@ -190,7 +241,8 @@ async function gate(mod,onOk){
   }
   var notice = await fromHash();
   var st = await status(mod);
-  if(st.state==="ok"){ onOk(); return; }
+  if(st.state==="ok"){ onOk(); sync(4000); return; }          // já liberado: abre e atualiza a lista em segundo plano
+  if(await sync(2500)){ st = await status(mod); if(st.state==="ok"){ onOk(); return; } }  // talvez você tenha liberado na lista online
   lockScreen(mod,st,onOk,notice);
 }
 
@@ -198,7 +250,7 @@ async function gate(mod,onOk){
 window.addEventListener("hashchange",function(){ if(/[#&]ativar=/.test(location.hash||"")) location.reload(); });
 
 window.FFLicense = {
-  gate:gate, status:status, activate:activate, fromHash:fromHash,
+  gate:gate, status:status, activate:activate, fromHash:fromHash, sync:sync,
   deviceId:function(){ return fmtId(deviceId()); },
   modules:CFG.modules, brDate:brDate, copy:copy, waLink:waLink, isPersisted:function(){ deviceId(); return persisted; }
 };

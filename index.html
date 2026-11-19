@@ -42,6 +42,10 @@ h2.sec:first-child{margin-top:4px}
 .tag.none{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .tag.exp{background:var(--warn-soft);color:var(--warn)}
 
+.off{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-top:2px}
+.off .ai{width:40px;height:40px;border-radius:13px;background:var(--brand-soft);display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.off .at{flex:1;min-width:0}.off .at b{display:block;font-size:15px}.off .at small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.off .mini{padding:10px 16px;border-radius:12px;background:var(--brand);color:#fff;font-weight:800;font-size:13.5px}
 .acc{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);margin-top:18px;overflow:hidden}
 .acc summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
 .acc summary::-webkit-details-marker{display:none}
@@ -84,6 +88,12 @@ ol.how b{color:var(--text)}
 
     <h2 class="sec">Módulos</h2>
     <div id="mods"></div>
+
+    <div class="card off" id="offcard">
+      <span class="ai">📲</span>
+      <div class="at"><b>Uso offline</b><small id="offsub">Verificando…</small></div>
+      <button class="mini" id="install" hidden>Instalar</button>
+    </div>
 
     <details class="acc" id="acc" open>
       <summary>
@@ -148,8 +158,30 @@ function updateAcc(res,first){
     acc.open=true;
   }
 }
+
+/* ---------- uso offline / instalação ---------- */
+let deferred=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferred=e; $("install").hidden=false; });
+window.addEventListener("appinstalled",()=>{ deferred=null; $("install").hidden=true; });
+$("install").onclick=async()=>{ if(!deferred) return; deferred.prompt(); try{ await deferred.userChoice; }catch(e){} deferred=null; $("install").hidden=true; };
+const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+async function offlineStatus(){
+  const sub=$("offsub");
+  if(!("serviceWorker" in navigator)||!window.caches){ sub.textContent="Este navegador não suporta o modo offline."; return; }
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const hint=isStandalone()?"":(ios?" Para instalar: Compartilhar → Adicionar à Tela de Início.":" Para instalar: ⋮ → Instalar app (ou use o botão).");
+  const total=MODS.length;
+  for(let i=0;i<12;i++){
+    let ok=0; for(const m of MODS){ if(await caches.match(m.pasta+"/index.html",{ignoreSearch:true})) ok++; }
+    if(total&&ok===total){ sub.textContent="✅ Portal e "+total+" módulos prontos para usar sem internet."+hint; return; }
+    sub.textContent="⏳ Baixando os módulos para uso offline… ("+ok+"/"+total+")";
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  sub.textContent="Abra o portal com internet para baixar os módulos e usar offline."+hint;
+}
 async function start(){
   drawMods();
+  offlineStatus();
   $("devid").textContent=FFLicense.deviceId();
   if(!FFLicense.isPersisted()) $("nopersist").classList.remove("hidden");
   const w=FFLicense.waLink(""); if(w){ $("wa").href=w; $("wa").classList.remove("hidden"); }
@@ -167,6 +199,7 @@ async function start(){
   const n=await FFLicense.fromHash();
   if(n){ const e=$("notice"); e.className="msg "+(n.ok?"ok":"err"); e.textContent=n.msg; }
   updateAcc(await refresh(),true);
+  FFLicense.sync(4000).then(async ok=>{ if(ok) updateAcc(await refresh(),true); });   // liberações feitas por você na lista online
 }
 if(window.crypto&&crypto.subtle) start();
 else { $("devid").textContent="----"; const e=$("notice"); e.className="msg err"; e.textContent="Abra este site pelo endereço https em um navegador atualizado."; }

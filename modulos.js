@@ -5,7 +5,7 @@
      1) na raiz do portal (publicado no GitHub)
      2) ao lado do painel.html (na sua pasta painel-admin)
    ===================================================================== */
-window.FF_MODULOS = [
+(typeof window!=="undefined"?window:self).FF_MODULOS = [
   {
     id: "musculo",                       // identificador (sem espaços/acentos). NUNCA mude depois de emitir códigos
     nome: "MusculoApp",                  // nome mostrado
