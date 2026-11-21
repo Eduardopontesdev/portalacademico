@@ -38,15 +38,36 @@ function ymd(ts){ var d=new Date(ts); return d.getFullYear()+"-"+String(d.getMon
 function brDate(s){ var p=s.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
 
-/* ---------- ID do aparelho ---------- */
+/* ---------- ID do aparelho (com cópia de segurança em cookie) ---------- */
 var persisted = true;
+function ckGet(){ try{ var m=document.cookie.match(/(?:^|;\s*)ff_bk=([^;]*)/); return m?JSON.parse(decodeURIComponent(m[1])):null; }catch(e){ return null; } }
+function ckSet(o){ try{ var v=encodeURIComponent(JSON.stringify(o)); if(v.length>3600) return; document.cookie="ff_bk="+v+"; max-age=31536000; path=/; SameSite=Lax"+(location.protocol==="https:"?"; Secure":""); }catch(e){} }
+function backup(){ var l=[]; try{ l=JSON.parse(lsGet(LS.lic)||"[]"); }catch(e){} ckSet({d:normId(lsGet(LS.dev)),l:l}); }
+function restore(){
+  var b=ckGet(); if(!b) return;
+  if(normId(lsGet(LS.dev)).length!==8 && normId(b.d).length===8) lsSet(LS.dev,normId(b.d));
+  if(!lsGet(LS.lic) && b.l && b.l.length && normId(b.d)===normId(lsGet(LS.dev))) lsSet(LS.lic,JSON.stringify(b.l));
+}
 function deviceId(){
+  restore();
   var id = normId(lsGet(LS.dev));
   if(id.length===8) return id;
   var r = new Uint8Array(8); (window.crypto||window.msCrypto).getRandomValues(r);
   id = ""; for(var i=0;i<8;i++) id += ALPHA[r[i]%ALPHA.length];
-  persisted = lsSet(LS.dev,id);
+  persisted = lsSet(LS.dev,id); backup();
   return id;
+}
+function adoptId(id){ lsSet(LS.dev,id); myHashP=null; backup(); }
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+
+/* dica conforme o aparelho (iPhone / navegador dentro de outro app) */
+function platformTip(){
+  var ua=navigator.userAgent||"", ios=/iphone|ipad|ipod/i.test(ua), inapp=/FBAN|FBAV|Instagram|Line\/|MicroMessenger|Snapchat|TikTok|musical_ly|Messenger/i.test(ua);
+  var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
+  if(standalone) return "";
+  if(inapp) return "⚠️ Você abriu num navegador dentro de outro app (Instagram, Facebook…). O acesso não fica salvo ali: toque em “Abrir no Safari/Chrome”.";
+  if(ios) return "💡 iPhone: use o Safari (fora de aba privada) e toque em Compartilhar → Adicionar à Tela de Início. Depois abra pelo ícone: o acesso fica salvo.";
+  return "";
 }
 
 /* ---------- data de hoje (com proteção contra relógio voltado) ---------- */
@@ -150,13 +171,18 @@ async function activate(code){
   if(!window.crypto||!crypto.subtle) return {ok:false,msg:"Este navegador não suporta a validação. Abra o app pelo endereço https."};
   var r = await parse(code);
   if(!r.ok) return {ok:false,msg:r.err};
-  if(normId(r.p.d)!==deviceId()) return {ok:false,msg:"Este código foi gerado para outro aparelho. Envie o ID mostrado nesta tela para receber o código certo."};
   if(r.p.e < today()) return {ok:false,msg:"Este código expirou em "+brDate(r.p.e)+". Peça um novo código."};
+  var adopted=false;
+  if(normId(r.p.d)!==deviceId()){
+    if(r.p.p===1){ adoptId(normId(r.p.d)); adopted=true; }      // código portátil: este aparelho passa a usar o ID do código
+    else return {ok:false,msg:"Este código foi gerado para outro aparelho. Envie o ID mostrado nesta tela para receber o código certo."};
+  }
   var list = stored(), c = String(code).replace(/\s+/g,"");
   if(list.indexOf(c)<0) list.push(c);
   if(!lsSet(LS.lic,JSON.stringify(list))) return {ok:false,msg:"Não foi possível salvar a ativação (navegador em modo privado?)."};
   var names = (r.p.m==="*"?Object.keys(CFG.modules):r.p.m).map(function(k){return CFG.modules[k]||k;}).join(" e ");
-  return {ok:true,msg:"Acesso liberado a "+names+" até "+brDate(r.p.e)+"."};
+  backup();
+  return {ok:true,msg:"Acesso liberado a "+names+" até "+brDate(r.p.e)+"."+(adopted?" Este aparelho passou a usar o ID "+fmtId(normId(r.p.d))+".":"")};
 }
 
 /* ---------- código vindo por link (#ativar=...) ---------- */
@@ -216,6 +242,7 @@ function lockScreen(mod,st,onOk,notice){
    +'<div class="ffl-id"><small>Seu ID de acesso</small><b>'+id+'</b><button class="sec" id="ffl-copyid" style="margin:0;padding:8px">Copiar ID</button></div>'
    +(wa?'<a class="b wa" href="'+wa+'" target="_blank" rel="noopener">💬 Pedir liberação no WhatsApp</a>':"")
    +(persisted?"":'<div class="ffl-warn">⚠️ Este navegador não está guardando dados (modo privado?). O ID pode mudar. Use uma aba normal.</div>')
+   +(platformTip()?'<div class="ffl-warn">'+platformTip()+'</div>':"")
    +'<div class="ffl-step"><b>Já tem o código?</b> Cole abaixo:</div>'
    +'<textarea id="ffl-code" placeholder="FF1.xxxxx.yyyyy" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>'
    +'<button class="pri" id="ffl-go">Ativar acesso</button>'
@@ -252,6 +279,6 @@ window.addEventListener("hashchange",function(){ if(/[#&]ativar=/.test(location.
 window.FFLicense = {
   gate:gate, status:status, activate:activate, fromHash:fromHash, sync:sync,
   deviceId:function(){ return fmtId(deviceId()); },
-  modules:CFG.modules, brDate:brDate, copy:copy, waLink:waLink, isPersisted:function(){ deviceId(); return persisted; }
+  modules:CFG.modules, brDate:brDate, copy:copy, waLink:waLink, isPersisted:function(){ deviceId(); return persisted; }, tip:platformTip
 };
 })();

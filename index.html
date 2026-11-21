@@ -109,6 +109,7 @@ ol.how b{color:var(--text)}
           <button class="btn soft" id="copyid" style="margin-top:0">Copiar ID</button>
           <a class="btn wa hidden" id="wa" target="_blank" rel="noopener">💬 Pedir liberação no WhatsApp</a>
           <div class="warn hidden" id="nopersist">⚠️ Este navegador não está guardando dados (modo privado?). Use uma aba normal para o ID não mudar.</div>
+          <div class="warn hidden" id="platip"></div>
         </div>
         <div class="inner">
           <b>Tenho um código</b>
@@ -184,6 +185,7 @@ async function start(){
   offlineStatus();
   $("devid").textContent=FFLicense.deviceId();
   if(!FFLicense.isPersisted()) $("nopersist").classList.remove("hidden");
+  { const tp=FFLicense.tip(); if(tp){ $("platip").textContent=tp; $("platip").classList.remove("hidden"); } }
   const w=FFLicense.waLink(""); if(w){ $("wa").href=w; $("wa").classList.remove("hidden"); }
   $("copyid").onclick=function(){ FFLicense.copy(FFLicense.deviceId(),this); };
   $("go").onclick=async()=>{
@@ -192,6 +194,7 @@ async function start(){
     const r=await FFLicense.activate(v);
     if(!r.ok){ m.className="msg err"; m.textContent=r.msg; return; }
     m.className="msg hidden"; $("code").value="";
+    $("devid").textContent=FFLicense.deviceId();      // (código portátil pode trocar o ID deste aparelho)
     const n=$("notice"); n.className="msg ok"; n.textContent=r.msg; setTimeout(()=>n.classList.add("hidden"),9000);
     updateAcc(await refresh(),true);        // recolhe a área de ativação
     window.scrollTo({top:0,behavior:"smooth"});
