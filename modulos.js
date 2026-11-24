@@ -23,5 +23,21 @@
     pasta: "farma",
     descricao: "Fundamentos da Prática Farmacêutica · 30 questões e cálculos animados",
     cor: ["#a7f3d0", "#14b8a6"]
+  },
+  {
+    id: "quimica",
+    nome: "Química Geral",
+    emoji: "⚛️",
+    pasta: "quimica",
+    descricao: "Configuração eletrônica, período e grupo, massa molar · animações passo a passo",
+    cor: ["#bfdbfe", "#a5b4fc"]
+  },
+  {
+    id: "fisio",
+    nome: "Fisiologia Ilustrada",
+    emoji: "🫀",
+    pasta: "fisio",
+    descricao: "Circulação, células do sangue, sistema nervoso, membrana e respiratório · com imagens",
+    cor: ["#fbcfe8", "#fca5a5"]
   }
 ];

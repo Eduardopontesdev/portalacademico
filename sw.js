@@ -1,7 +1,7 @@
 // Service worker único do portal: ao instalar o portal, baixa também todos os módulos
 // (lista vinda de modulos.js) para tudo funcionar sem internet.
 importScripts("modulos.js");
-const CACHE = "portal-v2";
+const CACHE = "portal-v3";
 const MODS = self.FF_MODULOS || [];
 const CORE = ["./", "./index.html", "./license.js", "./modulos.js", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 const ASSETS = CORE.concat(...MODS.map(m =>
