@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Fisiologia Ilustrada – revisão com imagens</title>
+<style>
+
+:root{
+  --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --brand:#0f766e; --brand2:#14b8a6; --brand-soft:#ccfbf1;
+  --ok:#059669; --ok-soft:#d1fae5; --err:#e11d48; --err-soft:#ffe4e6;
+  --o:#2563eb; --o-soft:#dbeafe; --a:#7c3aed; --a-soft:#ede9fe; --warn:#d97706; --warn-soft:#fef3c7;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 4px 14px rgba(15,23,42,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0b1220; --card:#131c2e; --text:#e5edf7; --muted:#94a3b8; --line:#243049;
+    --brand:#14b8a6; --brand2:#2dd4bf; --brand-soft:#0f2f2c;
+    --ok:#34d399; --ok-soft:#08302a; --err:#fb7185; --err-soft:#3a1420;
+    --o:#60a5fa; --o-soft:#13243f; --a:#a78bfa; --a-soft:#251c45; --warn:#fbbf24; --warn-soft:#3a2a0a;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.45;overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+#app{max-width:640px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
+
+.top{padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 16px;background:linear-gradient(135deg,#0f766e,#115e59 60%,#134e4a);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:0 0 22px 22px;box-shadow:0 6px 20px rgba(15,118,110,.25);flex-shrink:0}
+.logo{display:flex;align-items:center;gap:11px}
+.logo .ic{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:22px}
+.logo h1{font-size:18px;margin:0;font-weight:800;letter-spacing:-.01em}
+.logo p{margin:0;font-size:12px;opacity:.8}
+.chip{background:rgba(255,255,255,.16);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap}
+
+main{flex:1;overflow-y:auto;padding:16px 16px 24px;-webkit-overflow-scrolling:touch}
+.view{animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 8px);flex-shrink:0}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border-radius:14px;color:var(--muted);font-size:11.5px;font-weight:700;position:relative}
+.tab .e{font-size:21px;line-height:1.1}
+a.tab{text-decoration:none}
+.tab.on{color:var(--brand);background:var(--brand-soft)}
+.badge{position:absolute;top:2px;right:calc(50% - 20px);background:var(--err);color:#fff;border-radius:999px;font-size:10px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 5px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+h2.sec{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 4px 9px;font-weight:800}
+h2.sec:first-child{margin-top:4px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:22px;font-weight:800}
+.stat span{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+
+.seg{display:flex;gap:6px;background:var(--bg);padding:4px;border-radius:14px;border:1px solid var(--line)}
+.seg button{flex:1;padding:9px 4px;border-radius:11px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--brand);box-shadow:var(--shadow)}
+
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.region{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;text-align:left;box-shadow:var(--shadow);transition:transform .1s}
+.region:active{transform:scale(.97)}
+.region.all{grid-column:1/-1;background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border:0}
+.region.vid{grid-column:1/-1;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:0;display:flex;align-items:center;gap:12px}
+.region.vid .me{font-size:30px}
+.region b{display:block;font-size:15px}
+.region small{font-size:12px;color:var(--muted)}
+.region.all small,.region.vid small{color:rgba(255,255,255,.88)}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--brand2);border-radius:99px;transition:width .3s}
+.region.all .bar{background:rgba(255,255,255,.3)}
+.region.all .bar i{background:#fff}
+
+.btn{width:100%;padding:14px;border-radius:14px;font-weight:800;font-size:15.5px;background:var(--brand);color:#fff;margin-top:10px;box-shadow:0 4px 12px rgba(15,118,110,.25)}
+.btn.dark{background:var(--text);color:var(--bg);box-shadow:none}
+.btn.soft{background:var(--bg);color:var(--text);border:1px solid var(--line);box-shadow:none}
+.btn.warn{background:#f59e0b}
+.btn.vio{background:linear-gradient(135deg,#7c3aed,#2563eb)}
+.btn:disabled{opacity:.45}
+.btn.mini{padding:10px;font-size:14px;margin-top:8px}
+
+/* Quiz */
+.qhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.x{width:38px;height:38px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-size:18px;flex-shrink:0}
+.prog{flex:1}
+.prog .bar{height:10px;margin:0}
+.qmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.pill{display:inline-block;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:12px;padding:4px 11px;border-radius:99px;margin-bottom:10px}
+.qtext{font-size:17.5px;font-weight:800;margin:4px 0 14px;line-height:1.4}
+.opts{display:grid;gap:9px}
+.opt{display:flex;gap:11px;align-items:center;text-align:left;padding:12px 13px;border-radius:14px;border:2px solid var(--line);background:var(--card);font-weight:600;font-size:14.5px}
+.opt .lt{width:28px;height:28px;border-radius:9px;background:var(--bg);display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--muted);flex-shrink:0}
+.opt:active{transform:scale(.99)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)} .opt.ok .lt{background:var(--ok);color:#fff}
+.opt.bad{border-color:var(--err);background:var(--err-soft)} .opt.bad .lt{background:var(--err);color:#fff}
+textarea.ans{width:100%;padding:13px 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:15px;outline:none;resize:vertical;min-height:120px}
+textarea.ans:focus{border-color:var(--brand)}
+
+.fb{margin-top:14px;border-radius:18px;padding:15px;border:2px solid;animation:in .25s}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--err-soft);border-color:var(--err)}
+.fb.neu{background:var(--brand-soft);border-color:var(--brand)}
+.fbh{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.fbi{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex-shrink:0}
+.ok .fbi{background:var(--ok)} .bad .fbi{background:var(--err)} .neu .fbi{background:var(--brand)}
+.fbh small{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.ok .fbh small{color:var(--ok)} .bad .fbh small{color:var(--err)} .neu .fbh small{color:var(--brand)}
+.fbh b{font-size:16px;line-height:1.3}
+.tip{margin-top:8px;font-size:14px;background:var(--card);border-radius:12px;padding:10px 12px}
+.tip small{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.attempt{font-size:13px;color:var(--muted);margin:-2px 0 8px}
+.attempt s{color:var(--err);font-weight:700}
+.model{background:var(--card);border-left:5px solid var(--brand);border-radius:12px;padding:11px 13px;font-size:14px;margin-top:12px}
+.model small{display:block;font-size:11px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
+.result{text-align:center}
+.trophy{font-size:56px;margin:4px 0}
+.result h2{margin:0;font-size:24px}
+.result p{color:var(--muted);margin:4px 0 14px}
+.rs{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.rs div{border-radius:14px;padding:12px 4px}
+.rs b{display:block;font-size:24px}
+.rs span{font-size:11px;font-weight:800;text-transform:uppercase}
+.brk{text-align:left;margin:10px 0}
+.brk div{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;padding:6px 0;border-bottom:1px dashed var(--line)}
+
+.warnmsg{color:var(--warn);font-size:13px;font-weight:700;margin:8px 2px 0}
+.empty{text-align:center;color:var(--muted);padding:34px 10px}
+.empty .big{font-size:44px}
+.banner{display:flex;align-items:center;gap:12px;background:var(--warn-soft);border:1px solid var(--warn);border-radius:16px;padding:12px 14px;margin-bottom:12px;width:100%;text-align:left}
+.banner b{display:block;font-size:14px}
+.banner small{color:var(--muted)}
+
+/* Estudo */
+details.m{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:9px;box-shadow:var(--shadow);overflow:hidden}
+details.m summary{list-style:none;padding:13px 14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+details.m summary::-webkit-details-marker{display:none}
+details.m summary b{flex:1;font-size:15px}
+details.m summary::after{content:"›";font-size:22px;color:var(--muted);transition:transform .2s}
+details.m[open] summary::after{transform:rotate(90deg)}
+.mbody{padding:0 14px 14px;font-size:14.5px}
+.mbody ul{margin:6px 0;padding-left:20px}
+.mbody li{margin:4px 0}
+.mbody p{margin:6px 0}
+.kv{background:var(--bg);border-radius:12px;padding:10px 12px;margin:8px 0}
+.tl>div{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.tl b{min-width:50px;color:var(--brand)}
+table.tb{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0}
+table.tb th,table.tb td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tb th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.fml{font-size:16px;font-weight:800;background:var(--brand-soft);color:var(--brand);border-radius:12px;padding:10px 12px;margin:8px 0}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex-shrink:0;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted)}
+.chips button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+.fields label{font-size:12px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px}
+.fields input{width:100%;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:16px;font-weight:700;outline:none}
+.fields input:focus{border-color:var(--brand)}
+.steps ol{margin:6px 0;padding-left:20px;font-size:14.5px}
+.steps li{margin:6px 0}
+
+/* Player de animação */
+.player{margin-top:6px}
+.stitle{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px;margin-bottom:8px}
+.stitle span:last-child{color:var(--muted);font-size:12px}
+.screen{background:linear-gradient(180deg,var(--brand-soft),var(--card));border:1px solid var(--line);border-radius:20px;padding:14px;min-height:310px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.scene{animation:in .45s ease-out;display:flex;flex-direction:column;gap:10px}
+.cap{text-align:center;font-size:15px;font-weight:600;padding:0 4px}
+.vis{width:100%;max-height:215px}
+.segs{display:flex;gap:4px;margin:12px 0 8px}
+.segs button{flex:1;height:8px;border-radius:9px;background:var(--line);position:relative;overflow:hidden;padding:0}
+.segs button i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--brand2)}
+.segs button.done i{width:100%}
+.segs button.cur i{animation:fillseg var(--d,5s) linear forwards}
+@keyframes fillseg{to{width:100%}}
+.paused .segs button.cur i,.paused .screen *{animation-play-state:paused!important}
+.ctrl{display:flex;gap:10px;justify-content:center;align-items:center}
+.cb{width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:18px;box-shadow:var(--shadow)}
+.cb.big{width:58px;height:58px;background:var(--brand);color:#fff;font-size:22px;border:0}
+.cb.sp{font-size:13px;font-weight:800;width:52px;border-radius:23px}
+
+.sc-body{fill:#334155}.sc-screen{fill:#0f172a}.sc-plate{fill:#94a3b8}
+.sc-num{fill:#4ade80;font:700 17px ui-monospace,Menlo,monospace}
+.drop{animation:rise 1.8s infinite ease-in}
+@keyframes rise{0%{transform:translateY(0);opacity:0}25%{opacity:.95}100%{transform:translateY(-38px);opacity:0}}
+.smoke{transform-box:fill-box;transform-origin:center;animation:rise2 2.4s infinite ease-out}
+@keyframes rise2{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:.75}100%{transform:translateY(-48px) scale(1.5);opacity:0}}
+.glow{animation:glow 1.1s infinite alternate}
+@keyframes glow{from{opacity:.5}to{opacity:1}}
+.s-dry{animation:dry 3.2s ease forwards}
+@keyframes dry{from{fill:#7fb069}to{fill:#c9a46a}}
+.s-burn{animation:burn 3.4s ease forwards}
+@keyframes burn{from{fill:#7fb069}55%{fill:#3f3f46}to{fill:#9ca3af}}
+.pulse{animation:pulse 1s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+.eqs{display:grid;gap:10px;text-align:center}
+.eq{font-size:19px;font-weight:700;opacity:0;animation:fadeup .6s forwards;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 8px}
+.eq.big{background:var(--brand);color:#fff;border:0}
+.eq.note{background:var(--warn-soft);border-color:var(--warn);font-size:14px;font-weight:600}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.n-a{color:var(--o)}.n-b{color:var(--a)}.n-r{color:var(--ok)}
+.big .n-r,.big .n-a,.big .n-b{color:#fff}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 6px;font-size:.92em}
+.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 8px 2px}
+.frac>span:last-child{padding:2px 8px 0}
+
+.res{text-align:center}
+.ring{width:140px;height:140px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:conic-gradient(var(--ok) var(--p,100%),var(--line) 0);animation:pop .8s cubic-bezier(.2,1.6,.4,1)}
+.ring>div{width:108px;height:108px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:28px;font-weight:800}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.reslabel{font-weight:800;margin:8px 0}
+.mbwrap{margin-top:8px}
+.mbar{display:flex;height:42px;border-radius:13px;overflow:hidden;border:2px solid var(--line);background:var(--bg)}
+.mbar .solid{background:#c9a46a;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+.mbar .part{background:#38bdf8;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;animation:growx 1.1s .3s ease-out backwards}
+.mbar .part.ash{background:#6b7280}
+@keyframes growx{from{width:0}}
+.legend{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-top:7px;gap:8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;background:#c9a46a}
+.legend i.w{background:#38bdf8}.legend i.ash{background:#6b7280}
+.mtot{text-align:center;font-size:13px;color:var(--muted);margin-top:4px}
+
+
+/* ===================== Fisiologia Ilustrada ===================== */
+.tabs{grid-template-columns:repeat(3,1fr)}
+a.tab{text-decoration:none}
+.logo .ic{flex-shrink:0}
+@keyframes appear{from{opacity:0}to{opacity:1}}
+.appear{opacity:0;animation:appear .5s forwards}
+.mono{font-family:ui-monospace,Menlo,monospace}
+.hint{font-size:13px;color:var(--muted);margin:6px 2px 10px}
+.center{text-align:center}
+.backbtn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-weight:800;font-size:13.5px;margin-bottom:12px;box-shadow:var(--shadow)}
+
+/* cartões de tópicos */
+.topics{display:grid;gap:11px}
+.topic{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:var(--shadow);width:100%;transition:transform .1s}
+.topic:active{transform:scale(.985)}
+.topic .te{width:56px;height:56px;border-radius:17px;display:grid;place-items:center;font-size:29px;flex-shrink:0}
+.topic b{display:block;font-size:16.5px}
+.topic small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.topic .go{margin-left:auto;font-size:22px;color:var(--muted)}
+.topic.t-train{background:linear-gradient(135deg,#7c3aed,#2563eb);border:0;color:#fff}
+.topic.t-train small,.topic.t-train .go{color:rgba(255,255,255,.88)}
+.topic.t-train .te{background:rgba(255,255,255,.2)}
+
+.legend3{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;font-weight:700;margin:4px 0 8px}
+.legend3 i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}
+
+/* coração */
+.hsvg{width:100%;display:block}
+.tube path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tube .o{stroke-width:21}.tube .i{stroke-width:16}
+.tube.hl .o{stroke:#f59e0b}
+.tube.hl{filter:drop-shadow(0 0 5px #f59e0b)}
+.ch{stroke-width:2.5}
+.ch.b{fill:#bfdbfe;stroke:#2563eb}.ch.r{fill:#fecaca;stroke:#dc2626}
+.ch.hl{stroke:#f59e0b;stroke-width:4.5;filter:drop-shadow(0 0 6px #f59e0b)}
+.vlv{fill:#fbbf24;stroke:#b45309;stroke-width:1.6}
+.vlv.hl{fill:#f59e0b;stroke:#7c2d12;stroke-width:2.6;filter:drop-shadow(0 0 5px #f59e0b)}
+.lung{fill:#fbcfe8;stroke:#db2777;stroke-width:2}
+.lung.hl{stroke:#f59e0b;stroke-width:4;filter:drop-shadow(0 0 6px #f59e0b)}
+.cl{font:800 15px system-ui,sans-serif;fill:#0f172a;text-anchor:middle;dominant-baseline:central}
+.vl{font:700 8.5px system-ui,sans-serif;fill:#0f172a;text-anchor:middle}
+.lbl{font:700 10px system-ui,sans-serif;fill:var(--muted)}
+.trail{fill:none;stroke-width:3.6;stroke-linecap:round;stroke-dasharray:1 7;opacity:.9}
+.badge{position:static;background:none;border-radius:0;min-width:0;height:auto;padding:0;display:inline}
+.nb{fill:#0f172a;stroke:#fff;stroke-width:1.5}
+.nt{font:800 10px system-ui,sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central}
+.steplist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.steplist li{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13.5px;font-weight:700;cursor:pointer}
+.steplist li b{width:24px;height:24px;border-radius:8px;color:#fff;display:grid;place-items:center;font-size:12px;flex-shrink:0}
+.steplist li.v b{background:#2563eb}.steplist li.a b{background:#dc2626}
+.steplist li span{flex:1}
+.steplist li em{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:700}
+.two2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mini2{border-radius:14px;padding:11px;font-size:13px}
+.mini2 b{display:block;font-size:14px;margin-bottom:3px}
+
+/* jogo de ordenar */
+.og-ans{display:grid;gap:6px}
+.og-slot{display:flex;gap:8px;align-items:center;min-height:38px;padding:6px 10px;border-radius:12px;border:2px dashed var(--line);background:var(--bg);text-align:left;font-weight:700;font-size:13.5px;width:100%}
+.og-slot b{width:22px;height:22px;border-radius:7px;background:var(--line);display:grid;place-items:center;font-size:12px;flex-shrink:0}
+.og-slot.has{border-style:solid;border-color:var(--brand);background:var(--brand-soft)}
+.og-slot.ok{border-color:var(--ok);background:var(--ok-soft)}
+.og-slot.bad{border-color:var(--err);background:var(--err-soft)}
+.og-pool{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px}
+.og-chip{padding:8px 12px;border-radius:99px;background:var(--card);border:2px solid var(--line);font-weight:700;font-size:13px}
+.og-msg{margin-top:8px;font-weight:800;font-size:14px;min-height:20px}
+
+/* camadas */
+.layer{cursor:pointer}
+.layer.sel rect.lr{stroke:#f59e0b;stroke-width:3}
+.ltx{font:700 10.5px system-ui,sans-serif;fill:var(--text)}
+.detail{background:var(--brand-soft);border-radius:14px;padding:12px;font-size:14px;margin-top:10px}
+.detail b.t{display:block;font-size:16px;margin-bottom:3px}
+
+/* células */
+.gal{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}
+.gal::-webkit-scrollbar{display:none}
+.cellcard{flex:0 0 96px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:8px 4px 6px;text-align:center;font-weight:800;font-size:12px}
+.cellcard.on{border-color:var(--brand);background:var(--brand-soft)}
+.cellcard svg{width:76px;height:76px;display:block;margin:0 auto 2px}
+.cdet{display:flex;gap:14px;align-items:flex-start}
+.cdet svg{width:110px;height:110px;flex-shrink:0}
+.cdet b.t{font-size:18px;display:block}
+.cdet .tag2{display:inline-block;background:var(--brand-soft);color:var(--brand);font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:99px;margin:3px 4px 3px 0}
+.abund{display:grid;gap:8px;margin-top:8px}
+.arow{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center}
+.arow svg{width:34px;height:34px}
+.abar{background:var(--bg);border-radius:10px;height:30px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.abar i{position:absolute;left:0;top:0;bottom:0;border-radius:10px;animation:growx 1s ease-out backwards}
+.abar span{position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;font-weight:800;font-size:12.5px;color:#0f172a;text-shadow:0 0 4px #fff}
+.mnem{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
+.mnem span{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px 10px;font-size:13px;font-weight:700}
+.mnem span b{color:var(--brand);font-size:18px}
+
+/* autônomo */
+.ans-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pnl{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:9px 8px;text-align:center}
+.pnl .pt{font-weight:800;font-size:13.5px;margin-bottom:2px}
+.pnl svg{width:100%;height:66px;display:block}
+.pnl .pe{font-size:12.5px;font-weight:700;margin-top:4px;min-height:34px}
+.ans .t-para{display:none}
+.ans.para .t-sym{display:none}
+.ans.para .t-para{display:inline}
+.ans.sym .pe{color:#c2410c}.ans.para .pe{color:#0f766e}
+.pupil{transform-box:fill-box;transform-origin:center;transition:transform .7s}
+.ans.sym .pupil{transform:scale(1.55)}.ans.para .pupil{transform:scale(.5)}
+.hb{transform-box:fill-box;transform-origin:center;animation:hbeat var(--bt,.45s) ease-in-out infinite}
+.ans.sym{--bt:.42s}.ans.para{--bt:1.2s}
+@keyframes hbeat{0%,100%{transform:scale(1)}30%{transform:scale(1.2)}}
+.bro{fill:none;stroke:#0284c7;stroke-linecap:round;stroke-linejoin:round;transition:stroke-width .7s;stroke-width:3}
+.ans.sym .bro{stroke-width:7.5}.ans.para .bro{stroke-width:2.2}
+.gd{fill:#38bdf8;opacity:0;transition:opacity .5s}
+.ans.para .gd{opacity:1;animation:dropd 1.3s infinite}
+@keyframes dropd{0%{transform:translateY(-5px);opacity:0}30%{opacity:1}100%{transform:translateY(9px);opacity:0}}
+.gut{transform-box:fill-box;transform-origin:center;transition:transform .7s}
+.ans.sym .gut{transform:scale(.88)}
+.ans.para .gut{animation:gwave 1.6s ease-in-out infinite}
+@keyframes gwave{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.bl{transform-box:fill-box;transform-origin:center;transition:transform .8s}
+.ans.sym .bl{transform:scale(1.18)}.ans.para .bl{transform:scale(.7)}
+.ba{opacity:0;transition:opacity .6s}.ans.para .ba{opacity:1;animation:dropd 1.2s infinite}
+table.tb{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0}
+table.tb th,table.tb td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tb th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+table.tb td.s{color:#c2410c;font-weight:700}table.tb td.p{color:#0f766e;font-weight:700}
+.tscroll{overflow-x:auto}
+
+/* membrana */
+.msvg{width:100%;display:block}
+.lh{fill:#fbbf24;stroke:#b45309;stroke-width:1}
+.lt{stroke:#b45309;stroke-width:1.5}
+.pr{fill:#a78bfa;stroke:#5b21b6;stroke-width:2}
+.pt1{fill:#38bdf8}.pt2{fill:#fb923c}.pt3{fill:#a855f7}.pt4{fill:#22c55e}
+.pl{font:800 8px system-ui,sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central}
+.zl{font:700 10px system-ui,sans-serif;fill:var(--muted)}
+.jit{animation:jit 1.8s ease-in-out infinite alternate}
+@keyframes jit{from{transform:translate(0,0)}to{transform:translate(5px,-4px)}}
+@keyframes cross{0%{transform:translateY(0);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:translateY(110px);opacity:0}}
+.cr{animation:cross 3s linear infinite}
+@keyframes up{0%{transform:translateY(0);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:translateY(-112px);opacity:0}}
+.upm{animation:up 3.2s linear infinite}
+@keyframes glc{0%{transform:translateY(0);opacity:0}10%{opacity:1}30%{transform:translateY(48px)}55%{transform:translateY(48px)}90%{opacity:1}100%{transform:translateY(116px);opacity:0}}
+.gl{animation:glc 4s ease-in-out infinite}
+@keyframes carr{0%,25%{transform:scaleY(1)}45%,60%{transform:scaleY(.8) scaleX(1.1)}80%,100%{transform:scaleY(1)}}
+.carr{transform-box:fill-box;transform-origin:center;animation:carr 4s ease-in-out infinite}
+@keyframes atpf{0%,100%{opacity:.25}50%{opacity:1}}
+.atp{animation:atpf 1.6s infinite}
+@keyframes lvlL{0%,10%{transform:scaleY(1)}70%,100%{transform:scaleY(.9)}}
+@keyframes lvlR{0%,10%{transform:scaleY(1)}70%,100%{transform:scaleY(1.17)}}
+.lvl{transform-box:fill-box;transform-origin:bottom}
+.lvl.l{animation:lvlL 6s ease-in-out infinite alternate}
+.lvl.r{animation:lvlR 6s ease-in-out infinite alternate}
+@keyframes wcross{0%{transform:translateX(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateX(66px);opacity:0}}
+.wc{animation:wcross 3s linear infinite}
+@keyframes swell{0%,100%{transform:scale(1)}60%{transform:scale(1.3)}}
+@keyframes shrink{0%,100%{transform:scale(1)}60%{transform:scale(.78)}}
+.cs{transform-box:fill-box;transform-origin:center}
+.cs.sw{animation:swell 3s ease-in-out infinite}
+.cs.sh{animation:shrink 3s ease-in-out infinite}
+.frame{display:inline-block}
+.sub{display:none}
+.chips button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sbox{background:var(--brand-soft);border-radius:14px;padding:11px 12px;font-size:14px;margin-top:8px}
+.sbox b{color:var(--brand)}
+
+/* ===================== Sistema respiratório ===================== */
+.lungp{fill:#fce7f3;stroke:#db2777;stroke-width:2.2}
+.pa{fill:#e0f2fe;stroke:#0284c7;stroke-width:2.2}
+.pa.hl{fill:#fef3c7;stroke:#f59e0b;stroke-width:3.6;filter:drop-shadow(0 0 5px #f59e0b)}
+.br{fill:none;stroke:#a16207;stroke-linecap:round}
+.br.main{stroke-width:9}.br.lobar{stroke-width:5.5}.br.thin{stroke-width:2.6}.br.stem{stroke-width:1.6}
+.br.hl{stroke:#f59e0b;filter:drop-shadow(0 0 3px #f59e0b)}
+.alv{fill:#fbcfe8;stroke:#be185d;stroke-width:1}
+.alv.hl{fill:#fde68a;stroke:#f59e0b;stroke-width:1.6}
+.vent .lungs2,.vent .thx{transform-box:fill-box;transform-origin:center;transition:transform 1s ease-in-out}
+.vent .dd,.vent .ai,.vent .ao{transition:opacity 1s}
+.vent .dd.dn{opacity:0}.vent .ai,.vent .ao{opacity:0}
+.vent.insp .lungs2{transform:scale(1.14)}.vent.insp .thx{transform:scale(1.06)}
+.vent.exp .lungs2{transform:scale(.9)}.vent.exp .thx{transform:scale(.97)}
+.vent.insp .dd.up{opacity:0}.vent.insp .dd.dn{opacity:1}.vent.insp .ai{opacity:1}
+.vent.exp .ao{opacity:1}
+.vent .vt{display:none}.vent.auto .vt-a{display:block}.vent.insp .vt-i{display:block}.vent.exp .vt-e{display:block}
+.vent.auto .lungs2{animation:lungb 5s ease-in-out infinite}
+.vent.auto .thx{animation:thxb 5s ease-in-out infinite}
+.vent.auto .dd.up{animation:ddup 5s ease-in-out infinite}
+.vent.auto .dd.dn{animation:dddn 5s ease-in-out infinite}
+.vent.auto .ai{animation:aiin 5s ease-in-out infinite}
+.vent.auto .ao{animation:aiout 5s ease-in-out infinite}
+@keyframes lungb{0%,100%{transform:scale(.9)}50%{transform:scale(1.14)}}
+@keyframes thxb{0%,100%{transform:scale(.97)}50%{transform:scale(1.06)}}
+@keyframes ddup{0%,15%{opacity:1}35%,65%{opacity:0}85%,100%{opacity:1}}
+@keyframes dddn{0%,15%{opacity:0}35%,65%{opacity:1}85%,100%{opacity:0}}
+@keyframes aiin{0%,5%{opacity:0}15%,45%{opacity:1}55%,100%{opacity:0}}
+@keyframes aiout{0%,50%{opacity:0}60%,90%{opacity:1}100%{opacity:0}}
+.rbc{fill:#7f1d1d;stroke:#450a0a;stroke-width:1.5;animation:rbcm 6s linear infinite}
+@keyframes rbcm{0%{transform:translateX(0);fill:#7f1d1d}100%{transform:translateX(250px);fill:#ef4444}}
+@keyframes o2in{0%{transform:translateY(0);opacity:0}15%{opacity:1}75%{transform:translateY(70px);opacity:1}100%{transform:translateY(80px);opacity:0}}
+.o2in{animation:o2in 3.4s linear infinite}
+@keyframes co2out{0%{transform:translateY(0);opacity:0}15%{opacity:1}75%{transform:translateY(-70px);opacity:1}100%{transform:translateY(-80px);opacity:0}}
+.co2out{animation:co2out 3.4s linear infinite}
+.spl{fill:none;stroke:#2563eb;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 6s linear forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.flow{display:grid;gap:4px;margin-top:8px}
+.fbox{background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:10px 12px;font-size:14px;text-align:center}
+.fbox small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;font-weight:600}
+.farr{text-align:center;color:var(--brand);font-weight:800;line-height:1}
+
+/* ===================== Perguntas com imagem ===================== */
+.in{width:100%;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--text);font:inherit;font-size:16px;font-weight:700;outline:none;margin-top:10px}
+.in:focus{border-color:var(--brand)}
+.in.okin{border-color:var(--ok);background:var(--ok-soft)}.in.badin{border-color:var(--err);background:var(--err-soft)}
+.qimg{max-width:300px;margin:8px auto}.qimg.sm{max-width:170px}
+.qimg svg{width:100%;height:auto;display:block}
+.link{display:block;margin:8px auto 0;color:var(--muted);font-weight:700;font-size:13px;text-decoration:underline;padding:6px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <a class="logo" id="logo" href="../index.html" style="color:inherit;text-decoration:none" aria-label="Voltar ao portal">
+      <div class="ic">🫀</div>
+      <div><h1>Fisiologia Ilustrada</h1><p>Revisão com imagens</p></div>
+    </a>
+    <div class="chip" id="chip">🧪 Módulo em teste</div>
+  </header>
+
+  <main id="main">
+    <section id="v-home" class="view"></section>
+    <section id="v-topic" class="view hidden"></section>
+    <section id="v-quiz" class="view hidden"></section>
+  </main>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-tab="home"><span class="e">🏠</span>Tópicos</button>
+    <button class="tab" data-tab="quiz"><span class="e">🎯</span>Treinar</button>
+    <a class="tab" href="../index.html" id="toportal"><span class="e">📚</span>Portal</a>
+  </nav>
+</div>
+
+<script>
+/* Ao incluir no portal: troque para true (liga a trava por código e o modo offline). */
+const LICENCA = true;
+
+/* =====================  UTILIDADES  ===================== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function rnd(n){ if(window.crypto&&crypto.getRandomValues){const u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n;} return Math.floor(Math.random()*n); }
+const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=rnd(i+1);[r[i],r[j]]=[r[j],r[i]];}return r;};
+function animateCounts(){}   // (o player chama; aqui não há contadores)
+
+/* =====================  DADOS  ===================== */
+const TOPICS=[
+ {id:"circ",e:"🫀",t:"Trajeto do sangue",d:"Da veia cava até a aorta, passo a passo",bg:"linear-gradient(135deg,#bfdbfe,#fca5a5)"},
+ {id:"wall",e:"🧱",t:"Camadas do coração",d:"Pericárdio, epicárdio, miocárdio e endocárdio",bg:"linear-gradient(135deg,#fecaca,#fde68a)"},
+ {id:"cells",e:"🔬",t:"Células do sangue",d:"Hemácia, plaqueta e os 5 leucócitos em ordem",bg:"linear-gradient(135deg,#ddd6fe,#fbcfe8)"},
+ {id:"ans",e:"🧠",t:"Simpático × Parassimpático",d:"Luta ou fuga × repouso e digestão",bg:"linear-gradient(135deg,#fed7aa,#a7f3d0)"},
+ {id:"mem",e:"💧",t:"Transporte pela membrana",d:"Osmose, difusão, carreadora, bomba e vesículas",bg:"linear-gradient(135deg,#bae6fd,#c4b5fd)"}
+];
+
+/* Trajeto do sangue (cada passo: nome, trajeto do pontinho e explicação) */
+const HS=[
+ {n:"Veias cavas (VCS e VCI)",via:[[84,28],[90,86]],say:"Trazem o sangue <b>venoso</b> (pobre em O₂) do corpo todo até o coração."},
+ {n:"Átrio direito (AD)",via:[[90,86],[102,150]],say:"Câmara que <b>recebe</b> o sangue das veias cavas."},
+ {n:"Válvula tricúspide",via:[[102,150],[102,196]],say:"Válvula <b>atrioventricular direita</b> (3 folhetos): deixa o sangue passar do AD para o VD e impede o refluxo."},
+ {n:"Ventrículo direito (VD)",via:[[102,196],[113,250]],say:"Contrai e <b>impulsiona</b> o sangue rumo aos pulmões."},
+ {n:"Válvula pulmonar",via:[[113,250],[140,226],[161,206]],say:"Válvula <b>semilunar</b> na saída do VD: impede o sangue de voltar ao ventrículo."},
+ {n:"Tronco e artérias pulmonares",via:[[161,206],[161,60]],say:"Levam aos pulmões sangue <b>ainda venoso</b>: são artérias que carregam sangue pobre em O₂."},
+ {n:"Pulmões (hematose)",via:[[161,60],[160,22]],say:"Nos capilares dos alvéolos o sangue <b>libera CO₂ e capta O₂</b>: vira <b>arterial</b>."},
+ {n:"Veias pulmonares",via:[[160,22],[208,22],[340,22],[340,82]],say:"Trazem o sangue <b>rico em O₂</b> de volta ao coração (veias que levam sangue arterial)."},
+ {n:"Átrio esquerdo (AE)",via:[[340,82],[340,140],[304,140],[258,150]],say:"Recebe o sangue oxigenado que vem dos pulmões."},
+ {n:"Válvula mitral (bicúspide)",via:[[258,150],[254,196]],say:"Válvula <b>atrioventricular esquerda</b> (2 folhetos): leva o sangue do AE ao VE."},
+ {n:"Ventrículo esquerdo (VE)",via:[[254,196],[247,252]],say:"Câmara de parede <b>mais espessa</b>: bombeia o sangue para o corpo todo."},
+ {n:"Válvula aórtica",via:[[247,252],[210,226],[201,206]],say:"Válvula <b>semilunar</b> na saída do VE: impede o refluxo da aorta."},
+ {n:"Aorta",via:[[201,206],[201,70],[318,70]],say:"Maior artéria do corpo: distribui o sangue <b>arterial</b> pelas artérias. Depois, nos tecidos, ele vira venoso e volta pelas veias cavas."}
+];
+
+/* Camadas do coração (de fora para dentro) */
+const LAYERS=[
+ {id:"fib",n:"Pericárdio fibroso",grp:"Pericárdio (saco ao redor do coração)",c:"#d6b98c",h:30,d:"Camada externa, <b>resistente</b> e fibrosa. Protege o coração e o prende às estruturas vizinhas, limitando a dilatação excessiva."},
+ {id:"par",n:"Pericárdio seroso: lâmina parietal",grp:"Pericárdio (saco ao redor do coração)",c:"#fde68a",h:10,d:"Membrana <b>fina</b> que reveste por dentro o pericárdio fibroso."},
+ {id:"cav",n:"Cavidade pericárdica",grp:"Pericárdio (saco ao redor do coração)",c:"#bae6fd",h:16,d:"Espaço virtual com um pouco de <b>líquido pericárdico</b>, que lubrifica e reduz o atrito a cada batimento."},
+ {id:"epi",n:"Epicárdio",grp:"Parede do coração (3 camadas)",c:"#fcd34d",h:18,d:"<b>Camada externa</b> da parede. É a <b>lâmina visceral</b> do pericárdio seroso. Tem vasos coronários e gordura."},
+ {id:"mio",n:"Miocárdio",grp:"Parede do coração (3 camadas)",c:"#b91c1c",h:86,d:"<b>Camada média</b>, a mais espessa: <b>músculo estriado cardíaco</b>, responsável pela contração. É mais espesso no ventrículo esquerdo."},
+ {id:"endo",n:"Endocárdio",grp:"Parede do coração (3 camadas)",c:"#fde8e8",h:12,d:"<b>Camada interna</b>, finíssima (endotélio): reveste as câmaras e as válvulas, em contato com o sangue."},
+ {id:"luz",n:"Luz da câmara (sangue)",grp:"Interior",c:"#fca5a5",h:44,d:"Espaço onde circula o sangue. Fica em contato direto com o endocárdio."}
+];
+
+/* Células do sangue */
+const CELLS={
+ eri:{n:"Hemácia (eritrócito)",grp:"Não é leucócito",pct:"≈ 4–6 milhões/µL",ap:"Disco bicôncavo, <b>sem núcleo</b>, vermelho (hemoglobina).",fn:"Transporta <b>O₂</b> e parte do CO₂."},
+ pla:{n:"Plaquetas",grp:"Fragmentos de células",pct:"≈ 150–400 mil/µL",ap:"Pequenos <b>fragmentos</b> sem núcleo, roxos.",fn:"<b>Coagulação</b>: formam o tampão plaquetário."},
+ neu:{n:"Neutrófilo",grp:"Granulócito",pct:"≈ 60–70% dos leucócitos",ap:"Núcleo <b>multilobulado</b> (3 a 5 lobos); grânulos finos e pouco corados.",fn:"1ª linha de defesa: <b>fagocita bactérias</b>; forma o pus."},
+ lin:{n:"Linfócito",grp:"Agranulócito",pct:"≈ 20–30%",ap:"Pequeno; <b>núcleo grande e redondo</b> ocupando quase toda a célula.",fn:"Imunidade específica: linfócitos <b>B</b> (anticorpos) e <b>T</b>."},
+ mon:{n:"Monócito",grp:"Agranulócito",pct:"≈ 2–10%",ap:"<b>Maior</b> leucócito; núcleo em <b>ferradura/rim</b>; citoplasma acinzentado.",fn:"Vai para os tecidos e vira <b>macrófago</b> (fagocitose)."},
+ eos:{n:"Eosinófilo",grp:"Granulócito",pct:"≈ 1–4%",ap:"Núcleo <b>bilobulado</b>; grânulos <b>grandes, alaranjados/avermelhados</b> (coram com eosina).",fn:"Combate <b>parasitas</b> (vermes) e participa de <b>alergias</b>."},
+ bas:{n:"Basófilo",grp:"Granulócito",pct:"< 1% (o mais raro)",ap:"Grânulos <b>grandes azul-escuros</b> que escondem o núcleo.",fn:"Libera <b>histamina e heparina</b>: inflamação e alergias."}
+};
+const LEUCO=["neu","lin","mon","eos","bas"];   // ordem de abundância (mais → menos)
+const LEUCO_PCT={neu:62,lin:30,mon:5,eos:2,bas:0.5};
+const LEUCO_COL={neu:"#f9a8d4",lin:"#93c5fd",mon:"#cbd5e1",eos:"#fdba74",bas:"#a78bfa"};
+
+/* Questões de treino */
+const QZ=[
+ {t:"circ",q:"Qual é a sequência correta a partir das veias cavas?",o:["AD → válvula tricúspide → VD → válvula pulmonar → artérias pulmonares","AE → válvula mitral → VE → válvula aórtica → aorta","VD → válvula tricúspide → AD → artérias pulmonares","VE → válvula pulmonar → AD → aorta","AD → válvula mitral → VD → veias pulmonares"],a:0,
+  x:"As veias cavas chegam ao <b>átrio direito</b>; o sangue passa pela <b>tricúspide</b> ao <b>ventrículo direito</b> e sai pela <b>válvula pulmonar</b> rumo às artérias pulmonares."},
+ {t:"circ",q:"As veias cavas desembocam em qual câmara do coração?",o:["Átrio direito","Átrio esquerdo","Ventrículo direito","Ventrículo esquerdo"],a:0,x:"As veias cavas trazem o sangue venoso do corpo para o <b>átrio direito</b>."},
+ {t:"circ",q:"Qual válvula fica entre o átrio esquerdo e o ventrículo esquerdo?",o:["Mitral (bicúspide)","Tricúspide","Pulmonar","Aórtica"],a:0,x:"A <b>mitral (bicúspide)</b> é a atrioventricular esquerda. A tricúspide fica à direita."},
+ {t:"circ",q:"As veias pulmonares transportam sangue:",o:["Rico em O₂, dos pulmões ao átrio esquerdo","Pobre em O₂, dos pulmões ao átrio direito","Rico em O₂, do ventrículo esquerdo ao corpo","Pobre em O₂, do corpo ao átrio direito"],a:0,x:"São veias que levam sangue <b>arterial (oxigenado)</b> dos pulmões ao <b>átrio esquerdo</b>."},
+ {t:"circ",q:"Qual câmara bombeia o sangue para a aorta?",o:["Ventrículo esquerdo","Ventrículo direito","Átrio esquerdo","Átrio direito"],a:0,x:"O <b>ventrículo esquerdo</b> tem a parede mais espessa porque bombeia o sangue para todo o corpo."},
+ {t:"circ",q:"As artérias pulmonares transportam sangue:",o:["Pobre em O₂, do ventrículo direito aos pulmões","Rico em O₂, do ventrículo direito aos pulmões","Rico em O₂, dos pulmões ao coração","Pobre em O₂, do corpo ao coração"],a:0,x:"Artéria leva sangue <b>para fora</b> do coração. As pulmonares levam sangue <b>venoso</b> aos pulmões."},
+ {t:"circ",q:"A pequena circulação (circulação pulmonar) percorre:",o:["Ventrículo direito → pulmões → átrio esquerdo","Ventrículo esquerdo → corpo → átrio direito","Átrio direito → ventrículo esquerdo → pulmões","Átrio esquerdo → pulmões → ventrículo direito"],a:0,x:"Pequena circulação: <b>VD → pulmões → AE</b>. Grande circulação: <b>VE → corpo → AD</b>."},
+ {t:"circ",q:"Onde acontece a hematose?",o:["Nos capilares dos alvéolos pulmonares","Nas veias cavas","Na aorta","Nos ventrículos"],a:0,x:"Nos alvéolos o sangue <b>libera CO₂ e capta O₂</b>."},
+ {t:"wall",q:"Qual é a camada média da parede do coração, formada por músculo cardíaco?",o:["Miocárdio","Epicárdio","Endocárdio","Pericárdio fibroso"],a:0,x:"O <b>miocárdio</b> é a camada muscular, a mais espessa."},
+ {t:"wall",q:"Qual camada reveste o interior das câmaras e as válvulas?",o:["Endocárdio","Epicárdio","Miocárdio","Pericárdio seroso parietal"],a:0,x:"O <b>endocárdio</b> é a camada mais interna, em contato com o sangue."},
+ {t:"wall",q:"O epicárdio corresponde a:",o:["À lâmina visceral do pericárdio seroso","À lâmina parietal do pericárdio seroso","Ao pericárdio fibroso","Ao tecido muscular do coração"],a:0,x:"O <b>epicárdio</b> é a lâmina <b>visceral</b> do pericárdio seroso, colada ao coração."},
+ {t:"wall",q:"A ordem das camadas da parede do coração, de fora para dentro, é:",o:["Epicárdio → miocárdio → endocárdio","Endocárdio → miocárdio → epicárdio","Miocárdio → epicárdio → endocárdio","Epicárdio → endocárdio → miocárdio"],a:0,x:"<b>Epi</b> (sobre) → <b>mio</b> (músculo) → <b>endo</b> (dentro)."},
+ {t:"cells",q:"Qual célula do sangue libera histamina e heparina?",o:["Basófilo","Eosinófilo","Neutrófilo","Monócito"],a:0,x:"O <b>basófilo</b> tem grânulos escuros com histamina e heparina."},
+ {t:"cells",q:"Qual leucócito aumenta em parasitoses e alergias e tem grânulos alaranjados?",o:["Eosinófilo","Basófilo","Neutrófilo","Linfócito"],a:0,x:"O <b>eosinófilo</b> tem núcleo bilobulado e grânulos que coram com eosina."},
+ {t:"cells",q:"Qual é o leucócito mais abundante no sangue?",o:["Neutrófilo","Linfócito","Monócito","Eosinófilo"],a:0,x:"Neutrófilos ≈ 60–70% dos leucócitos."},
+ {t:"cells",q:"Qual é o leucócito menos abundante?",o:["Basófilo","Eosinófilo","Monócito","Linfócito"],a:0,x:"Os <b>basófilos</b> são os mais raros (menos de 1%)."},
+ {t:"cells",q:"Qual é a ordem decrescente de abundância dos leucócitos?",o:["Neutrófilo, linfócito, monócito, eosinófilo, basófilo","Linfócito, neutrófilo, monócito, basófilo, eosinófilo","Neutrófilo, monócito, linfócito, basófilo, eosinófilo","Monócito, neutrófilo, linfócito, eosinófilo, basófilo"],a:0,x:"<b>N</b>ós <b>L</b>emos <b>M</b>uito <b>E</b>m <b>B</b>iologia: Neutrófilo, Linfócito, Monócito, Eosinófilo, Basófilo."},
+ {t:"cells",q:"O monócito, ao migrar para os tecidos, transforma-se em:",o:["Macrófago","Plasmócito","Mastócito","Neutrófilo"],a:0,x:"Monócitos viram <b>macrófagos</b> e fagocitam microrganismos e restos celulares."},
+ {t:"cells",q:"Qual célula tem núcleo grande e redondo, ocupando quase toda a célula, e produz anticorpos (quando B)?",o:["Linfócito","Monócito","Neutrófilo","Hemácia"],a:0,x:"Os <b>linfócitos</b> são pequenos, com núcleo grande; os B viram plasmócitos e produzem anticorpos."},
+ {t:"ans",q:"Qual é o efeito do sistema simpático sobre as pupilas?",o:["Dilatação (midríase)","Contração (miose)","Não altera","Fecha as pálpebras"],a:0,x:"Simpático = <b>luta ou fuga</b>: pupila dilata para captar mais luz."},
+ {t:"ans",q:"Qual é o principal neurotransmissor das fibras pós-ganglionares simpáticas?",o:["Noradrenalina","Acetilcolina","Dopamina","Serotonina"],a:0,x:"Pós-ganglionar simpático: <b>noradrenalina</b> (exceção: glândulas sudoríparas, que usam acetilcolina)."},
+ {t:"ans",q:"A origem do sistema parassimpático é:",o:["Craniossacral","Toracolombar","Cervical","Apenas torácica"],a:0,x:"Parassimpático: nervos cranianos (III, VII, IX, X) e segmentos sacrais S2–S4. O simpático é <b>toracolombar</b> (T1–L2)."},
+ {t:"ans",q:"O sistema parassimpático, sobre o coração, provoca:",o:["Diminuição da frequência cardíaca","Aumento da frequência cardíaca","Parada cardíaca","Nenhum efeito"],a:0,x:"Parassimpático = <b>repouso e digestão</b>: reduz a frequência cardíaca."},
+ {t:"ans",q:"Onde ficam os gânglios do sistema nervoso simpático?",o:["Próximos à medula espinhal (cadeia paravertebral)","Dentro ou junto aos órgãos-alvo","No cérebro","Nos músculos esqueléticos"],a:0,x:"Simpático: fibra pré-ganglionar <b>curta</b> e pós <b>longa</b>. No parassimpático, gânglios junto aos órgãos."},
+ {t:"mem",q:"Osmose é a passagem de:",o:["Água através de uma membrana semipermeável, do meio menos concentrado para o mais concentrado em soluto","Soluto do meio menos concentrado para o mais concentrado, com gasto de ATP","Água do meio mais concentrado para o menos concentrado","Qualquer substância por vesículas"],a:0,x:"A água vai do meio <b>hipotônico</b> (menos soluto) para o <b>hipertônico</b> (mais soluto)."},
+ {t:"mem",q:"Uma hemácia colocada em solução hipotônica:",o:["Incha e pode sofrer lise","Murcha (crenação)","Fica igual","Divide-se"],a:0,x:"Meio hipotônico: <b>entra água</b> na célula; ela incha e pode estourar (lise)."},
+ {t:"mem",q:"A proteína carreadora participa de qual processo?",o:["Difusão facilitada (ex.: glicose), sem gasto de ATP","Transporte ativo, com gasto de ATP, a favor do gradiente","Fagocitose","Osmose pela bicamada lipídica"],a:0,x:"A <b>carreadora</b> liga-se à substância, muda de forma e a libera do outro lado, <b>a favor do gradiente</b> e sem ATP."},
+ {t:"mem",q:"A bomba de sódio e potássio:",o:["Expulsa 3 Na⁺ e leva 2 K⁺ para dentro, gastando ATP","Expulsa 2 Na⁺ e leva 3 K⁺ para dentro, sem ATP","Leva Na⁺ e K⁺ para dentro a favor do gradiente","Só transporta água"],a:0,x:"Transporte ativo: <b>3 Na⁺ para fora</b>, <b>2 K⁺ para dentro</b>, contra o gradiente, com ATP."},
+ {t:"mem",q:"Qual transporte ocorre a favor do gradiente, sem proteínas e sem ATP?",o:["Difusão simples","Transporte ativo","Endocitose","Difusão facilitada"],a:0,x:"A <b>difusão simples</b> atravessa a bicamada (ex.: O₂ e CO₂)."},
+ {t:"mem",q:"O englobamento de partículas sólidas pela célula é a:",o:["Fagocitose","Pinocitose","Exocitose","Osmose"],a:0,x:"<b>Fagocitose</b> = partículas sólidas; <b>pinocitose</b> = líquidos. Ambas são endocitose."},
+ {t:"mem",q:"O que diferencia o transporte ativo do passivo?",o:["Ocorre contra o gradiente e gasta ATP","Ocorre a favor do gradiente e não gasta ATP","Só ocorre com água","Não usa proteínas"],a:0,x:"Ativo: <b>contra o gradiente</b>, com <b>ATP</b> e proteína (bomba)."}
+];
+
+/* =====================  IMAGENS (SVG)  ===================== */
+
+/* ----- Coração e trajeto do sangue ----- */
+function tubeS(d,col,hl){
+  const dk=col==="b"?"#2563eb":"#dc2626", lt=col==="b"?"#bfdbfe":"#fecaca";
+  return `<g class="tube${hl?" hl":""}"><path class="o" d="${d}" stroke="${dk}"/><path class="i" d="${d}" stroke="${lt}"/></g>`;
+}
+const BADGE=[[90,84],[72,124],[86,198],[72,222],[140,214],[161,120],[124,15],[340,80],[228,124],[270,197],[290,224],[186,212],[258,70]];
+function svgHeart(step,opt){
+  const Q=!!(opt&&opt.hide), h=k=>step===k, hc=k=>h(k)?" hl":"";
+  let s=`<svg class="hsvg" viewBox="0 0 370 365" role="img" aria-label="Coração e trajeto do sangue">`;
+  // câmaras
+  s+=`<rect class="ch b${hc(2)}" x="56" y="108" width="92" height="82" rx="30"/><rect class="ch b${hc(4)}" x="56" y="200" width="114" height="104" rx="40"/>`;
+  s+=`<rect class="ch r${hc(9)}" x="212" y="108" width="92" height="82" rx="30"/><rect class="ch r${hc(11)}" x="190" y="200" width="114" height="112" rx="44"/>`;
+  // pulmões
+  s+=`<rect class="lung${hc(7)}" x="112" y="3" width="44" height="40" rx="16"/><rect class="lung${hc(7)}" x="164" y="3" width="44" height="40" rx="16"/>${Q?"":`<text class="vl" x="160" y="36">Pulmões</text>`}`;
+  // vasos
+  s+=tubeS("M90 52 L90 112","b",h(1))+tubeS("M43 342 L43 170 Q43 160 60 160","b",h(1));
+  s+=tubeS("M161 206 L161 44","b",h(6));
+  s+=tubeS("M208 22 L340 22 L340 140 L304 140","r",h(8));
+  s+=tubeS("M201 206 L201 70 L314 70","r",h(13));
+  s+=`<polygon points="328,70 314,61 314,79" fill="${h(13)?"#f59e0b":"#dc2626"}"/>`;
+  // válvulas
+  s+=`<polygon class="vlv${hc(3)}" points="88,195 102,187 116,195 102,203"/><polygon class="vlv${hc(10)}" points="240,195 254,187 268,195 254,203"/>`;
+  s+=`<polygon class="vlv${hc(5)}" points="150,208 161,200 172,208 161,216"/><polygon class="vlv${hc(12)}" points="190,208 201,200 212,208 201,216"/>`;
+  // rótulos
+  if(!Q) s+=`<text class="cl" x="102" y="150">AD</text><text class="cl" x="113" y="252">VD</text><text class="cl" x="258" y="152">AE</text><text class="cl" x="247" y="254">VE</text>`;
+  if(!Q) s+=`<text class="vl" x="102" y="218">tricúspide</text><text class="vl" x="254" y="218">mitral</text><text class="vl" x="140" y="230">pulmonar</text><text class="vl" x="222" y="230">aórtica</text>`;
+  if(!Q) s+=`<text class="lbl" x="72" y="64" text-anchor="end">VCS</text><text class="lbl" x="43" y="360" text-anchor="middle">VCI</text><text class="lbl" x="90" y="16" text-anchor="middle">do corpo</text>`;
+  if(!Q) s+=`<text class="lbl" x="150" y="94" text-anchor="end">Tronco</text><text class="lbl" x="150" y="105" text-anchor="end">pulmonar</text><text class="lbl" x="262" y="60">Aorta</text>`;
+  if(!Q) s+=`<text class="lbl" transform="translate(358,62) rotate(90)">veias pulmonares</text>`;
+  if(Q){ /* modo pergunta: sem rótulos nem trajeto */ } else if(step>0){
+    for(let j=0;j<step;j++){
+      const v=HS[j].via, col=(j+1)>=8?"#dc2626":"#2563eb";
+      s+=`<path class="trail" stroke="${col}" d="M${v.map(p=>p.join(" ")).join(" L")}"/>`;
+    }
+    const v=HS[step-1].via, col=step>=8?"#dc2626":"#2563eb";
+    s+=`<circle r="7.5" fill="${col}" stroke="#fff" stroke-width="2.2"><animateMotion dur="1.7s" fill="freeze" path="M${v.map(p=>p.join(",")).join(" L")}"/></circle>`;
+  } else {
+    BADGE.forEach((p,i)=>{ s+=`<circle class="nb" cx="${p[0]}" cy="${p[1]}" r="9"/><text class="nt" x="${p[0]}" y="${p[1]+.5}">${i+1}</text>`; });
+  }
+  return s+`</svg>`;
+}
+
+/* ----- Camadas do coração ----- */
+const LSHORT={fib:"Pericárdio fibroso",par:"Lâmina parietal",cav:"Cavid. pericárdica",epi:"Epicárdio",mio:"Miocárdio",endo:"Endocárdio",luz:"Luz (sangue)"};
+function svgLayers(sel,opt){
+  const HIDE=!!(opt&&opt.hide), TGT=opt&&opt.target;
+  const X0=40, W=150; let y=14;
+  let s=`<svg class="hsvg" viewBox="0 0 340 250" role="img" aria-label="Camadas do coração">`;
+  s+=`<defs><clipPath id="clipMio"><rect x="${X0}" y="88" width="${W}" height="86"/></clipPath></defs>`;
+  const pos={};
+  LAYERS.forEach(L=>{
+    pos[L.id]=y;
+    s+=`<g class="layer${(HIDE?L.id===TGT:sel===L.id)?" sel":""}" data-l="${L.id}"><rect class="lr" x="${X0}" y="${y}" width="${W}" height="${L.h}" fill="${L.c}" stroke="#78350f" stroke-width="1"/>`;
+    if(L.id==="fib") for(let i=0;i<8;i++){ const x1=X0+i*20, x2=Math.min(X0+W,x1+24); if(x1>=X0+W) break; s+=`<line x1="${x1}" y1="${y+L.h}" x2="${x2}" y2="${y+L.h-(x2-x1)*L.h/24}" stroke="#a16207" stroke-width="1.2" opacity=".55"/>`; }
+    if(L.id==="cav") for(let i=0;i<6;i++) s+=`<circle cx="${X0+14+i*26}" cy="${y+8}" r="2" fill="#7dd3fc"/>`;
+    if(L.id==="epi") for(let i=0;i<7;i++) s+=`<circle cx="${X0+12+i*22}" cy="${y+9}" r="${i%3===1?4.5:3}" fill="${i%3===1?"#dc2626":"#fffbeb"}" opacity=".9"/>`;
+    if(L.id==="mio"){ for(let i=0;i<8;i++){ const yy=y+8+i*10; s+=`<path d="M${X0} ${yy} C ${X0+40} ${yy-8}, ${X0+90} ${yy+8}, ${X0+W} ${yy}" fill="none" stroke="#7f1d1d" stroke-width="2.2" opacity=".75"/>`; } }
+    if(L.id==="luz") for(let i=0;i<8;i++) s+=`<ellipse cx="${X0+14+i*18}" cy="${y+12+(i%2)*18}" rx="7" ry="4.2" fill="#dc2626" opacity=".85"/>`;
+    const my=y+L.h/2;
+    if(!HIDE) s+=`<line x1="${X0+W}" y1="${my}" x2="${X0+W+14}" y2="${my}" stroke="#94a3b8" stroke-width="1"/><text class="ltx" x="${X0+W+18}" y="${my}" dominant-baseline="central">${LSHORT[L.id]}</text></g>`;
+    else s+=(L.id===TGT?`<line x1="${X0+W}" y1="${my}" x2="${X0+W+16}" y2="${my}" stroke="#f59e0b" stroke-width="2.4"/><circle cx="${X0+W+28}" cy="${my}" r="11" fill="#f59e0b"/><text x="${X0+W+28}" y="${my+.5}" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="800" fill="#0f172a">?</text>`:"")+`</g>`;
+    y+=L.h;
+  });
+  if(!HIDE){
+  // colchetes
+  const yE=pos.epi, yEnd=pos.endo+12;
+  s+=`<path d="M32 14 L26 14 L26 ${pos.epi} L32 ${pos.epi}" fill="none" stroke="#92400e" stroke-width="1.6"/><text class="lbl" transform="translate(14,${(14+pos.epi)/2}) rotate(-90)" text-anchor="middle">Pericárdio</text>`;
+  s+=`<path d="M32 ${yE+1} L26 ${yE+1} L26 ${yEnd} L32 ${yEnd}" fill="none" stroke="#b91c1c" stroke-width="1.6"/><text class="lbl" transform="translate(14,${(yE+yEnd)/2}) rotate(-90)" text-anchor="middle">Parede (3 camadas)</text>`;
+  s+=`<text class="lbl" x="${X0+W/2}" y="8" text-anchor="middle">⬆ fora</text><text class="lbl" x="${X0+W/2}" y="248" text-anchor="middle">dentro ⬇</text>`;
+  }
+  return s+`</svg>`;
+}
+
+/* ----- Células do sangue ----- */
+function scat(n,r,seed){ const o=[]; for(let i=0;i<n;i++){ const a=i*2.39996+seed, rr=r*Math.sqrt((i+.6)/n); o.push([50+rr*Math.cos(a),50+rr*Math.sin(a)]); } return o; }
+function cellSVG(id){
+  let b="";
+  if(id==="eri") b=`<circle cx="50" cy="50" r="33" fill="#dc2626" stroke="#991b1b" stroke-width="2"/><circle cx="50" cy="50" r="15" fill="#f87171" opacity=".8"/>`;
+  else if(id==="pla") b=[[34,46,11,8],[60,36,8,45],[54,64,12,100],[72,54,7,20],[30,68,8,60]].map(([x,y,r,a])=>`<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*.6}" transform="rotate(${a} ${x} ${y})" fill="#a78bfa" stroke="#6d28d9" stroke-width="1.6"/>`).join("");
+  else if(id==="neu") b=`<circle cx="50" cy="50" r="38" fill="#fce7f3" stroke="#f9a8d4" stroke-width="2"/>`+scat(34,32,1).map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="1.2" fill="#f472b6"/>`).join("")+`<path d="M36 40 L52 32 L64 48 L52 62" fill="none" stroke="#6d28d9" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`+[[36,40],[52,32],[64,48],[52,62]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="#6d28d9"/>`).join("");
+  else if(id==="eos") b=`<circle cx="50" cy="50" r="38" fill="#fee2e2" stroke="#fca5a5" stroke-width="2"/>`+scat(30,30,2).map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.6" fill="#ea580c" stroke="#9a3412" stroke-width=".6"/>`).join("")+`<line x1="42" y1="50" x2="58" y2="50" stroke="#4f46e5" stroke-width="4"/><ellipse cx="38" cy="50" rx="10" ry="14" fill="#4f46e5"/><ellipse cx="62" cy="50" rx="10" ry="14" fill="#4f46e5"/>`;
+  else if(id==="bas") b=`<circle cx="50" cy="50" r="38" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2"/><path d="M34 34 C 58 28, 70 42, 54 52 C 40 60, 52 68, 66 64 L68 74 C 44 82, 28 66, 44 54 C 56 46, 48 40, 32 44 Z" fill="#6366f1" opacity=".65"/>`+scat(24,31,3).map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.6" fill="#1e1b4b" stroke="#4338ca" stroke-width=".8"/>`).join("");
+  else if(id==="lin") b=`<circle cx="50" cy="50" r="31" fill="#bfdbfe" stroke="#93c5fd" stroke-width="2"/><circle cx="50" cy="50" r="25" fill="#5b21b6"/>`+scat(7,15,4).map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.4" fill="#8b5cf6"/>`).join("");
+  else if(id==="mon") b=`<circle cx="50" cy="50" r="43" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>`+[[22,60],[78,34],[26,32],[74,70],[60,84]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.8" fill="#f1f5f9"/>`).join("")+`<path d="M38 28 C 62 24, 78 44, 65 63 C 57 75, 38 75, 33 62 C 46 60, 52 50, 44 42 C 38 38, 34 33, 38 28 Z" fill="#8b5cf6" stroke="#6d28d9" stroke-width="1.5"/>`;
+  return `<svg viewBox="0 0 100 100" role="img" aria-label="${esc(CELLS[id].n)}">${b}</svg>`;
+}
+
+/* ----- Sistema nervoso autônomo ----- */
+const eyeSVG=()=>`<svg viewBox="0 0 100 60"><ellipse cx="50" cy="30" rx="44" ry="25" fill="#fff" stroke="#94a3b8" stroke-width="2"/><circle cx="50" cy="30" r="19" fill="#38bdf8"/><circle class="pupil" cx="50" cy="30" r="9" fill="#0f172a"/><circle cx="57" cy="23" r="3" fill="#fff" opacity=".85"/></svg>`;
+const heartSVG=()=>`<svg viewBox="0 0 100 60"><path class="hb" d="M50 54 C 12 32, 22 4, 40 9 C 46 11, 49 16, 50 20 C 51 16, 54 11, 60 9 C 78 4, 88 32, 50 54 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1.5"/></svg>`;
+const lungSVG=()=>`<svg viewBox="0 0 100 60"><path class="bro" d="M50 4 L50 22 M50 22 L28 38 M50 22 L72 38 M28 38 L14 52 M28 38 L34 56 M72 38 L86 52 M72 38 L66 56"/></svg>`;
+const gutSVG=()=>`<svg viewBox="0 0 100 60"><g class="gut"><path d="M26 10 C 58 4, 84 18, 80 38 C 76 54, 50 56, 40 46 C 32 40, 34 30, 24 26 Z" fill="#fdba74" stroke="#c2410c" stroke-width="2"/></g><circle class="gd" cx="34" cy="14" r="3"/><circle class="gd" cx="46" cy="10" r="3" style="animation-delay:.4s"/><circle class="gd" cx="58" cy="12" r="3" style="animation-delay:.8s"/></svg>`;
+const bladderSVG=()=>`<svg viewBox="0 0 100 60"><ellipse class="bl" cx="50" cy="26" rx="22" ry="19" fill="#fde047" stroke="#a16207" stroke-width="2"/><path d="M50 45 L50 58" stroke="#a16207" stroke-width="4" stroke-linecap="round"/><path class="ba" d="M44 50 L50 58 L56 50" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/></svg>`;
+function panel(t,svg,a,b){ return `<div class="pnl"><div class="pt">${t}</div>${svg}<div class="pe"><span class="t-sym">${a}</span><span class="t-para">${b}</span></div></div>`; }
+function ansWidget(){
+  return `<div class="ans sym" id="answ"><div class="seg" style="margin-bottom:10px"><button data-m="sym" class="on">⚡ Simpático</button><button data-m="para">😌 Parassimpático</button></div>
+  <div class="ans-grid">
+   ${panel("👁️ Pupila",eyeSVG(),"Dilata (midríase)","Contrai (miose)")}
+   ${panel("❤️ Coração",heartSVG(),"↑ Frequência e força","↓ Frequência")}
+   ${panel("🫁 Brônquios",lungSVG(),"Dilatam","Contraem")}
+   ${panel("🍽️ Digestão",gutSVG(),"↓ Inibe secreções e movimentos","↑ Estimula (saliva, suco gástrico, peristalse)")}
+   ${panel("💧 Bexiga",bladderSVG(),"Relaxa: retém a urina","Contrai: esvazia")}
+  </div></div>`;
+}
+function svgCord(){
+  return `<svg class="hsvg" viewBox="0 0 340 200" role="img" aria-label="Origem do sistema nervoso autônomo">
+   <rect x="135" y="6" width="70" height="30" rx="14" fill="#86efac" stroke="#16a34a" stroke-width="2"/><text class="vl" x="170" y="25">Tronco enc.</text>
+   <rect x="160" y="38" width="20" height="152" rx="7" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+   <rect x="160" y="70" width="20" height="62" fill="#fdba74" stroke="#ea580c" stroke-width="2"/>
+   <rect x="160" y="160" width="20" height="30" rx="6" fill="#86efac" stroke="#16a34a" stroke-width="2"/>
+   <text x="150" y="96" text-anchor="end" font-size="12" font-weight="800" fill="#c2410c">Simpático</text><text class="lbl" x="150" y="110" text-anchor="end">T1–L2</text><text class="lbl" x="150" y="122" text-anchor="end">toracolombar</text>
+   <text x="212" y="14" font-size="12" font-weight="800" fill="#0f766e">Parassimpático</text><text class="lbl" x="212" y="27" >nervos cranianos</text><text class="lbl" x="212" y="39">III, VII, IX e X</text>
+   <text x="190" y="170" font-size="12" font-weight="800" fill="#0f766e">Parassimpático</text><text class="lbl" x="190" y="183">S2–S4 (sacral)</text>
+  </svg>`;
+}
+
+/* ----- Transporte pela membrana ----- */
+function bilayer(y,x0,x1,gaps){
+  let s=""; for(let x=x0+6;x<x1;x+=12){ if(gaps&&gaps.some(g=>x>g[0]&&x<g[1])) continue;
+    s+=`<circle class="lh" cx="${x}" cy="${y-14}" r="5"/><circle class="lh" cx="${x}" cy="${y+14}" r="5"/><line class="lt" x1="${x-2}" y1="${y-9}" x2="${x-2}" y2="${y+9}"/><line class="lt" x1="${x+2}" y1="${y-9}" x2="${x+2}" y2="${y+9}"/>`; }
+  return s;
+}
+const mhead=(a,b)=>`<text class="zl" x="8" y="16">${a}</text><text class="zl" x="8" y="203">${b}</text>`;
+function svgSimples(){
+  let s=`<svg class="msvg" viewBox="0 0 320 210" role="img" aria-label="Difusão simples">${mhead("Meio extracelular (mais O₂)","Meio intracelular (menos O₂)")}${bilayer(105,0,320)}`;
+  [[30,40],[70,66],[110,34],[150,72],[190,44],[240,68],[282,36],[304,74]].forEach((p,i)=>{ s+=`<circle class="pt1 jit" cx="${p[0]}" cy="${p[1]}" r="5" style="animation-delay:${(i*.25).toFixed(2)}s"/>`; });
+  [[60,160],[210,172]].forEach(p=>{ s+=`<circle class="pt1 jit" cx="${p[0]}" cy="${p[1]}" r="5"/>`; });
+  [52,128,214,270].forEach((x,i)=>{ s+=`<circle class="pt1 cr" cx="${x}" cy="58" r="5" style="animation-delay:${(i*.75).toFixed(2)}s"/>`; });
+  return s+`<text class="zl" x="312" y="189" text-anchor="end">↓ a favor do gradiente · sem ATP</text></svg>`;
+}
+function svgFacil(){
+  let s=`<svg class="msvg" viewBox="0 0 320 210" role="img" aria-label="Difusão facilitada">${mhead("Meio extracelular (mais soluto)","Meio intracelular (menos soluto)")}${bilayer(105,0,320,[[60,122],[192,256]])}`;
+  s+=`<rect class="pr" x="62" y="82" width="16" height="46" rx="6"/><rect class="pr" x="104" y="82" width="16" height="46" rx="6"/>`;
+  s+=`<rect class="pr carr" x="198" y="84" width="52" height="42" rx="16"/><circle cx="224" cy="96" r="6" fill="#f5f3ff"/>`;
+  [[80,40],[100,60],[84,72]].forEach((p,i)=>{ s+=`<circle class="pt2 jit" cx="${p[0]}" cy="${p[1]}" r="5" style="animation-delay:${i*.3}s"/>`; });
+  [[206,44],[240,64],[222,34]].forEach((p,i)=>{ s+=`<circle class="pt4 jit" cx="${p[0]}" cy="${p[1]}" r="6" style="animation-delay:${i*.3}s"/>`; });
+  [0,1.1,2.2].forEach(d=>{ s+=`<circle class="pt2 cr" cx="91" cy="56" r="5" style="animation-delay:${d}s"/>`; });
+  s+=`<circle class="pt4 gl" cx="224" cy="52" r="6.5"/><text class="pl" x="224" y="52">G</text>`;
+  s+=`<text class="zl" x="91" y="150" text-anchor="middle">proteína canal</text><text class="zl" x="224" y="150" text-anchor="middle">proteína carreadora</text><text class="zl" x="312" y="189" text-anchor="end">a favor do gradiente · sem ATP</text>`;
+  return s+`</svg>`;
+}
+function svgAtivo(){
+  let s=`<svg class="msvg" viewBox="0 0 320 210" role="img" aria-label="Bomba de sódio e potássio">${mhead("Meio extracelular (mais Na⁺)","Meio intracelular (mais K⁺)")}${bilayer(105,0,320,[[122,198]])}`;
+  s+=`<rect class="pr" x="124" y="80" width="72" height="50" rx="16"/><text class="pl" x="160" y="105" style="font-size:9px">bomba Na⁺/K⁺</text>`;
+  [140,160,180].forEach((x,i)=>{ s+=`<circle class="pt2 upm" cx="${x}" cy="168" r="6" style="animation-delay:${(i*.9).toFixed(1)}s"/>`; });
+  [150,172].forEach((x,i)=>{ s+=`<circle class="pt3 cr" cx="${x}" cy="46" r="6" style="animation-delay:${(.4+i*1.1).toFixed(1)}s"/>`; });
+  s+=`<circle class="atp" cx="278" cy="164" r="14" fill="#fde047" stroke="#a16207" stroke-width="2"/><text class="pl" x="278" y="164" style="fill:#78350f;font-size:9px">ATP</text>`;
+  s+=`<circle class="pt2" cx="30" cy="40" r="5"/><text class="zl" x="40" y="43">Na⁺</text><circle class="pt3" cx="30" cy="62" r="5"/><text class="zl" x="40" y="65">K⁺</text>`;
+  s+=`<text class="zl" x="312" y="189" text-anchor="end">contra o gradiente · com ATP</text><text class="zl" x="24" y="146">↑ 3 Na⁺ para fora</text><text class="zl" x="206" y="146">↓ 2 K⁺ para dentro</text>`;
+  return s+`</svg>`;
+}
+function svgOsmose(){
+  let s=`<svg class="msvg" viewBox="0 0 320 210" role="img" aria-label="Osmose">`;
+  s+=`<rect class="lvl l" x="22" y="90" width="136" height="90" fill="#bae6fd"/><rect class="lvl r" x="162" y="90" width="136" height="90" fill="#bae6fd"/>`;
+  s+=`<path d="M20 40 L20 182 L300 182 L300 40" fill="none" stroke="#475569" stroke-width="3"/>`;
+  s+=`<line x1="160" y1="60" x2="160" y2="182" stroke="#b45309" stroke-width="3" stroke-dasharray="5 4"/>`;
+  [[60,130],[110,150],[84,168]].forEach((p,i)=>{ s+=`<circle class="pt2 jit" cx="${p[0]}" cy="${p[1]}" r="5" style="animation-delay:${i*.3}s"/>`; });
+  [[190,120],[225,146],[262,126],[200,166],[248,166],[280,150],[214,132],[268,172],[236,118]].forEach((p,i)=>{ s+=`<circle class="pt2 jit" cx="${p[0]}" cy="${p[1]}" r="5" style="animation-delay:${(i*.2).toFixed(1)}s"/>`; });
+  [[110,110],[116,136],[104,160],[112,172]].forEach((p,i)=>{ s+=`<circle class="pt1 wc" cx="${p[0]}" cy="${p[1]}" r="3.8" style="animation-delay:${(i*.7).toFixed(1)}s"/>`; });
+  s+=`<text class="zl" x="90" y="30" text-anchor="middle">Hipotônico</text><text class="zl" x="90" y="43" text-anchor="middle">(menos soluto)</text><text class="zl" x="230" y="30" text-anchor="middle">Hipertônico</text><text class="zl" x="230" y="43" text-anchor="middle">(mais soluto)</text>`;
+  s+=`<circle class="pt1" cx="30" cy="198" r="4"/><text class="zl" x="38" y="201">água</text><circle class="pt2" cx="80" cy="198" r="4"/><text class="zl" x="88" y="201">soluto (não atravessa)</text><text class="zl" x="160" y="54" text-anchor="middle" style="fill:#b45309">membrana semipermeável</text>`;
+  return s+`</svg>`;
+}
+function star(cx,cy,r1,r2,n){ const p=[]; for(let i=0;i<n*2;i++){ const a=Math.PI*i/n, r=i%2?r2:r1; p.push(`${(cx+r*Math.cos(a)).toFixed(1)},${(cy+r*Math.sin(a)).toFixed(1)}`); } return p.join(" "); }
+function svgTonic(){
+  let s=`<svg class="msvg" viewBox="0 0 320 170" role="img" aria-label="Hemácias em meios diferentes">`;
+  const cell=(x,cls,shape)=>`<g class="cs ${cls}">${shape}<circle cx="${x}" cy="62" r="9" fill="#f87171" opacity=".8"/></g>`;
+  s+=cell(55,"sw",`<circle cx="55" cy="62" r="26" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>`);
+  s+=cell(160,"",`<circle cx="160" cy="62" r="26" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>`);
+  s+=`<g class="cs sh"><polygon points="${star(265,62,27,20,12)}" fill="#dc2626" stroke="#991b1b" stroke-width="2"/><circle cx="265" cy="62" r="8" fill="#f87171" opacity=".8"/></g>`;
+  s+=`<text class="zl" x="55" y="112" text-anchor="middle" style="fill:#0284c7">Hipotônico</text><text class="zl" x="55" y="125" text-anchor="middle">água ENTRA</text><text class="zl" x="55" y="138" text-anchor="middle">incha → lise</text>`;
+  s+=`<text class="zl" x="160" y="112" text-anchor="middle" style="fill:#16a34a">Isotônico</text><text class="zl" x="160" y="125" text-anchor="middle">entra = sai</text><text class="zl" x="160" y="138" text-anchor="middle">forma normal</text>`;
+  s+=`<text class="zl" x="265" y="112" text-anchor="middle" style="fill:#c2410c">Hipertônico</text><text class="zl" x="265" y="125" text-anchor="middle">água SAI</text><text class="zl" x="265" y="138" text-anchor="middle">murcha (crenação)</text>`;
+    return s+`</svg>`;
+}
+function svgEndo(exo){
+  const mem=`stroke="#b45309" stroke-width="5" fill="none" stroke-linecap="round"`;
+  const fr=(x,i)=>`<g class="appear" style="animation-delay:${(i*1.3).toFixed(1)}s" transform="translate(${x},0)">`;
+  let s=`<svg class="msvg" viewBox="0 0 320 180" role="img" aria-label="${exo?"Exocitose":"Endocitose"}">`;
+  const A=[`<path ${mem} d="M6 70 L101 70"/>`,`<path ${mem} d="M6 70 L28 70 C 32 70, 34 98, 53 98 C 72 98, 74 70, 78 70 L101 70"/>`,`<path ${mem} d="M6 70 L101 70"/>`];
+  if(!exo){
+    s+=fr(0,0)+A[0]+`<circle cx="53" cy="40" r="10" fill="#475569"/><text class="zl" x="53" y="150" text-anchor="middle">1 · aproxima</text></g>`;
+    s+=fr(107,1)+A[1]+`<circle cx="53" cy="82" r="10" fill="#475569"/><text class="zl" x="53" y="150" text-anchor="middle">2 · envolve</text></g>`;
+    s+=fr(214,2)+A[2]+`<circle cx="53" cy="100" r="17" fill="#fef3c7" stroke="#b45309" stroke-width="3"/><circle cx="53" cy="100" r="9" fill="#475569"/><text class="zl" x="53" y="150" text-anchor="middle">3 · vesícula</text></g>`;
+  } else {
+    s+=fr(0,0)+A[0]+`<circle cx="53" cy="104" r="17" fill="#fef3c7" stroke="#b45309" stroke-width="3"/><circle cx="53" cy="104" r="9" fill="#475569"/><text class="zl" x="53" y="150" text-anchor="middle">1 · vesícula</text></g>`;
+    s+=fr(107,1)+`<path ${mem} d="M6 70 L28 70 C 32 70, 34 42, 53 42 C 72 42, 74 70, 78 70 L101 70"/><circle cx="53" cy="62" r="10" fill="#475569"/><text class="zl" x="53" y="150" text-anchor="middle">2 · funde</text></g>`;
+    s+=fr(214,2)+A[0]+`<circle cx="53" cy="40" r="10" fill="#475569"/><text class="zl" x="53" y="150" text-anchor="middle">3 · libera fora</text></g>`;
+  }
+  s+=`<text class="zl" x="8" y="16">${exo?"Meio extracelular (sai)":"Meio extracelular"}</text><text class="zl" x="8" y="172">Meio intracelular</text>`;
+  return s+`</svg>`;
+}
+
+/* =====================  SISTEMA RESPIRATÓRIO: DADOS  ===================== */
+TOPICS.forEach(t=>{ t.s={circ:"Circulação",wall:"Coração",cells:"Células",ans:"Autônomo",mem:"Membrana"}[t.id]; });
+TOPICS.push({id:"resp",e:"🫁",t:"Sistema respiratório",s:"Respiratório",d:"Vias aéreas, ventilação, trocas gasosas e volumes",bg:"linear-gradient(135deg,#bae6fd,#bbf7d0)"});
+
+/* Caminho do ar (cada passo: nome, trajeto do pontinho e explicação) */
+const AS=[
+ {n:"Fossas nasais",via:[[150,8],[150,30]],say:"O ar entra pelo nariz: pelos, muco e cílios <b>filtram</b>; a rica vascularização <b>aquece e umedece</b> o ar."},
+ {n:"Faringe",via:[[150,30],[150,66]],say:"Passagem <b>comum</b> ao ar e ao alimento (nasofaringe, orofaringe e laringofaringe)."},
+ {n:"Laringe",via:[[150,66],[150,100]],say:"Abriga as <b>pregas vocais</b>. A <b>epiglote</b> fecha a entrada durante a deglutição e evita engasgos."},
+ {n:"Traqueia",via:[[150,100],[150,196]],say:"Tubo com <b>anéis de cartilagem em C</b> que o mantêm aberto; o epitélio ciliado com muco empurra a sujeira para cima."},
+ {n:"Brônquios principais",via:[[150,196],[122,240]],say:"A traqueia se divide em <b>dois brônquios principais</b>. O direito é mais curto, largo e vertical."},
+ {n:"Brônquios lobares e segmentares",via:[[122,240],[92,300]],say:"Ramificam-se em <b>3 brônquios lobares à direita e 2 à esquerda</b> e depois em segmentares."},
+ {n:"Bronquíolos",via:[[92,300],[74,294]],say:"Sem cartilagem e com <b>músculo liso</b>: ao se contrair (ex.: asma), o ar passa com dificuldade."},
+ {n:"Ductos e sacos alveolares",via:[[74,294],[66,294]],say:"Fim do caminho: o ar chega aos <b>ductos alveolares</b> e aos <b>sacos alveolares</b>."},
+ {n:"Alvéolos",via:[[66,294],[60,296]],say:"Bolsas de parede finíssima, onde ocorre a <b>hematose</b>: troca de O₂ e CO₂ com o sangue."}
+];
+
+QZ.push(
+ {t:"resp",q:"Qual é a ordem correta do caminho do ar até os alvéolos?",o:["Fossas nasais → faringe → laringe → traqueia → brônquios → bronquíolos → alvéolos","Fossas nasais → laringe → faringe → traqueia → bronquíolos → brônquios → alvéolos","Faringe → fossas nasais → traqueia → laringe → brônquios → alvéolos → bronquíolos","Fossas nasais → faringe → traqueia → laringe → brônquios → bronquíolos → alvéolos"],a:0,x:"Nariz → <b>faringe → laringe → traqueia</b> → brônquios → bronquíolos → alvéolos."},
+ {t:"resp",q:"Onde ocorre a hematose (troca de O₂ e CO₂ entre o ar e o sangue)?",o:["Nos alvéolos pulmonares","Na traqueia","Nos brônquios","Na faringe"],a:0,x:"Só os <b>alvéolos</b> têm parede fina o bastante, junto aos capilares, para as trocas gasosas."},
+ {t:"resp",q:"Quantos lobos tem cada pulmão?",o:["Direito: 3 · esquerdo: 2","Direito: 2 · esquerdo: 3","Ambos: 3","Ambos: 2"],a:0,x:"O pulmão <b>direito</b> tem 3 lobos; o <b>esquerdo</b> tem 2 e uma incisura cardíaca, que abriga o coração."},
+ {t:"resp",q:"Qual é o principal músculo da inspiração?",o:["Diafragma","Reto abdominal","Peitoral maior","Trapézio"],a:0,x:"O <b>diafragma</b> (nervo frênico, C3–C5) é o principal músculo inspiratório."},
+ {t:"resp",q:"Na inspiração normal:",o:["O diafragma contrai e desce; o volume torácico aumenta e a pressão intrapulmonar diminui","O diafragma relaxa e sobe; o volume diminui","O diafragma contrai e sobe; a pressão aumenta","As costelas descem e o volume torácico aumenta"],a:0,x:"Mais volume → <b>menos pressão</b> (lei de Boyle): o ar entra até igualar com a pressão atmosférica."},
+ {t:"resp",q:"A expiração em repouso é:",o:["Passiva: o diafragma relaxa e o pulmão retrai por elasticidade","Ativa: exige contração dos músculos abdominais","Ativa: o diafragma contrai","Controlada apenas pelo nervo vago, sem músculos"],a:0,x:"Em repouso a expiração é <b>passiva</b>. Só a expiração forçada usa abdominais e intercostais internos."},
+ {t:"resp",q:"O surfactante pulmonar é produzido pelos:",o:["Pneumócitos tipo II","Pneumócitos tipo I","Macrófagos alveolares","Hemácias"],a:0,x:"Os <b>pneumócitos tipo II</b> produzem o surfactante, que reduz a tensão superficial e evita o colapso dos alvéolos."},
+ {t:"resp",q:"Qual é a principal forma de transporte do CO₂ no sangue?",o:["Íon bicarbonato (HCO₃⁻)","Dissolvido no plasma","Ligado à hemoglobina","Como gás oxigênio"],a:0,x:"Cerca de <b>70%</b> como bicarbonato, ≈23% ligado à hemoglobina e ≈7% dissolvido."},
+ {t:"resp",q:"Como a maior parte do O₂ é transportada no sangue?",o:["Ligada à hemoglobina (oxiemoglobina)","Dissolvida no plasma","Como bicarbonato","Ligada à albumina"],a:0,x:"Cerca de <b>98,5%</b> do O₂ vai ligado à hemoglobina; só ≈1,5% fica dissolvido."},
+ {t:"resp",q:"Qual é o principal estímulo para aumentar a ventilação?",o:["Aumento do CO₂ (queda do pH) no sangue","Queda leve do O₂","Aumento da temperatura","Aumento da glicose"],a:0,x:"O principal estímulo é o <b>aumento de CO₂ (↓ pH)</b>. O baixo O₂ só estimula forte quando cai bastante."},
+ {t:"resp",q:"Onde fica o centro respiratório?",o:["Bulbo e ponte (tronco encefálico)","Cerebelo","Córtex occipital","Medula espinhal lombar"],a:0,x:"O <b>bulbo</b> gera o ritmo básico; a <b>ponte</b> (centro pneumotáxico) ajusta e limita a inspiração."},
+ {t:"resp",q:"O volume corrente de um adulto em repouso é de cerca de:",o:["500 mL","1.200 mL","3.000 mL","5.800 mL"],a:0,x:"<b>Volume corrente ≈ 500 mL</b>. 1.200 mL é o volume residual; 5.800 mL, a capacidade pulmonar total."},
+ {t:"resp",q:"A capacidade vital é a soma de:",o:["Volume corrente + reserva inspiratória + reserva expiratória","Volume residual + volume corrente","Volume residual + reserva expiratória","Todos os volumes, inclusive o residual"],a:0,x:"<b>CV = VC + VRI + VRE</b> (≈ 4.600 mL). Com o volume residual, tem-se a capacidade pulmonar total."},
+ {t:"resp",q:"A pleura visceral reveste:",o:["O pulmão","A parede torácica","O diafragma e o coração","A traqueia"],a:0,x:"A pleura <b>visceral</b> cobre o pulmão; a <b>parietal</b> reveste a parede torácica. Entre elas há um filme de líquido pleural."},
+ {t:"resp",q:"O brônquio principal direito é:",o:["Mais curto, largo e vertical que o esquerdo","Mais longo e horizontal que o esquerdo","Igual ao esquerdo","Mais estreito que o esquerdo"],a:0,x:"Por isso corpos estranhos aspirados tendem a cair no <b>pulmão direito</b>."},
+ {t:"resp",q:"Qual estrutura fecha a entrada da laringe durante a deglutição?",o:["Epiglote","Úvula","Traqueia","Língua"],a:0,x:"A <b>epiglote</b> desce e protege as vias aéreas, desviando o alimento para o esôfago."}
+);
+
+/* =====================  SISTEMA RESPIRATÓRIO: IMAGENS  ===================== */
+const LUNGP="M112 212 C 70 216, 40 268, 42 330 C 44 372, 80 392, 120 384 C 142 378, 148 342, 146 292 C 144 250, 130 220, 112 212 Z";
+
+function airTree(lobes,mirror,step){
+  const H=k=>step===k?" hl":"";
+  const L=[[92,262],[92,300],[104,338]].filter((_,i)=>lobes===3||i!==1);
+  const BR={"92,262":[[74,250],[74,272]],"92,300":[[74,294],[76,316]],"104,338":[[84,352],[104,366]]};
+  const DU={"74,250":[66,248],"74,272":[66,278],"74,294":[66,294],"76,316":[68,322],"84,352":[76,358],"104,366":[98,376]};
+  let g=`<g${mirror?' transform="translate(300,0) scale(-1,1)"':""}>`;
+  g+=`<line class="br main${H(5)}" x1="150" y1="200" x2="122" y2="240"/>`;
+  L.forEach(p=>{
+    g+=`<line class="br lobar${H(6)}" x1="122" y1="240" x2="${p[0]}" y2="${p[1]}"/>`;
+    (BR[p.join(",")]||[]).forEach(b=>{
+      g+=`<line class="br thin${H(7)}" x1="${p[0]}" y1="${p[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+      const d=DU[b.join(",")];
+      if(d){
+        g+=`<line class="br stem${H(8)}" x1="${b[0]}" y1="${b[1]}" x2="${d[0]}" y2="${d[1]}"/>`;
+        [[-4,-4],[-6,2],[-2,6]].forEach(o=>{ g+=`<circle class="alv${H(9)}" cx="${d[0]+o[0]}" cy="${d[1]+o[1]}" r="4.2"/>`; });
+      }
+    });
+  });
+  return g+`</g>`;
+}
+function svgAir(step,opt){
+  const Q=!!(opt&&opt.hide), H=k=>step===k?" hl":"";
+  let s=`<svg class="hsvg" viewBox="0 0 300 410" role="img" aria-label="Vias aéreas e pulmões">`;
+  s+=`<path class="lungp" d="${LUNGP}"/><path class="lungp" d="${LUNGP}" transform="translate(300,0) scale(-1,1)"/>`;
+  s+=airTree(3,false,step)+airTree(2,true,step);
+  s+=`<path class="pa${H(1)}" d="M128 16 Q150 4 172 16 Q182 34 170 46 L130 46 Q118 34 128 16 Z"/>`;
+  s+=`<rect class="pa${H(2)}" x="140" y="46" width="20" height="38" rx="6"/>`;
+  s+=`<path class="pa${H(3)}" d="M134 84 L166 84 L160 116 L140 116 Z"/><path d="M142 84 Q150 95 158 84" fill="none" stroke="#0369a1" stroke-width="2"/>`;
+  s+=`<rect class="pa${H(4)}" x="141" y="116" width="18" height="86"/>`;
+  for(let y=124;y<200;y+=9) s+=`<line x1="141" y1="${y}" x2="159" y2="${y}" stroke="#0284c7" stroke-width="1" opacity=".55"/>`;
+  if(!Q) s+=`<text class="lbl" x="186" y="30">Fossas nasais</text><text class="lbl" x="170" y="68">Faringe</text><text class="lbl" x="172" y="102">Laringe</text><text class="lbl" x="172" y="162">Traqueia</text><text class="lbl" x="190" y="216">Brônquios principais</text>`;
+  if(!Q) s+=`<text class="lbl" x="84" y="406" text-anchor="middle">pulmão direito</text><text class="lbl" x="216" y="406" text-anchor="middle">pulmão esquerdo</text>`;
+  if(Q){ /* modo pergunta */ } else if(step>0){
+    for(let j=0;j<step;j++) s+=`<path class="trail" stroke="#0284c7" d="M${AS[j].via.map(p=>p.join(" ")).join(" L")}"/>`;
+    s+=`<circle r="6.5" fill="#0ea5e9" stroke="#fff" stroke-width="2.2"><animateMotion dur="1.5s" fill="freeze" path="M${AS[step-1].via.map(p=>p.join(",")).join(" L")}"/></circle>`;
+  } else {
+    [[150,28],[150,66],[150,100],[150,158],[136,222]].forEach((p,i)=>{ s+=`<circle class="nb" cx="${p[0]}" cy="${p[1]}" r="8.5"/><text class="nt" x="${p[0]}" y="${p[1]+.5}">${i+1}</text>`; });
+    [[92,262],[74,250],[66,278],[62,296]].forEach((t,i)=>{
+      const by=268+i*28;
+      s+=`<line x1="24" y1="${by}" x2="${t[0]}" y2="${t[1]}" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/><circle class="nb" cx="16" cy="${by}" r="8.5"/><text class="nt" x="16" y="${by+.5}">${i+6}</text>`;
+    });
+  }
+  return s+`</svg>`;
+}
+
+/* ----- Lobos dos pulmões ----- */
+function svgLobes(){
+  const R="M118 20 C 70 24, 36 90, 36 170 C 36 230, 62 262, 100 258 C 130 254, 140 220, 138 160 C 136 90, 134 40, 118 20 Z";
+  const Lp="M182 20 C 230 24, 264 90, 264 170 C 264 230, 238 262, 200 258 C 170 254, 168 236, 160 216 C 154 198, 164 186, 160 170 C 156 140, 170 40, 182 20 Z";
+  let s=`<svg class="hsvg" viewBox="0 0 300 290" role="img" aria-label="Lobos pulmonares"><defs><clipPath id="clipR"><path d="${R}"/></clipPath><clipPath id="clipL"><path d="${Lp}"/></clipPath></defs>`;
+  s+=`<g clip-path="url(#clipR)"><rect x="0" y="0" width="300" height="104" fill="#fbcfe8"/><rect x="0" y="104" width="300" height="62" fill="#bae6fd"/><rect x="0" y="166" width="300" height="130" fill="#bbf7d0"/></g><path d="${R}" fill="none" stroke="#475569" stroke-width="2.4"/>`;
+  s+=`<g clip-path="url(#clipL)"><rect x="0" y="0" width="300" height="150" fill="#fbcfe8"/><rect x="0" y="150" width="300" height="140" fill="#bbf7d0"/></g><path d="${Lp}" fill="none" stroke="#475569" stroke-width="2.4"/>`;
+  s+=`<text class="vl" x="84" y="66">Lobo superior</text><text class="vl" x="84" y="138">Lobo médio</text><text class="vl" x="84" y="214">Lobo inferior</text>`;
+  s+=`<text class="vl" x="214" y="100">Lobo superior</text><text class="vl" x="214" y="210">Lobo inferior</text>`;
+  s+=`<path d="M150 222 C 140 212, 138 228, 150 240 C 162 228, 160 212, 150 222 Z" fill="#dc2626" opacity=".8"/><text class="lbl" x="150" y="256" text-anchor="middle">incisura</text><text class="lbl" x="150" y="267" text-anchor="middle">cardíaca</text>`;
+  s+=`<text class="lbl" x="84" y="282" text-anchor="middle">Direito: 3 lobos</text><text class="lbl" x="216" y="282" text-anchor="middle">Esquerdo: 2 lobos</text>`;
+  return s+`</svg>`;
+}
+
+/* ----- Pleuras (corte) ----- */
+function svgPleura(){
+  const bands=[["Parede torácica (costelas e músculos)","#fecaca",36],["Pleura parietal","#fde68a",9],["Cavidade pleural (líquido)","#bae6fd",14],["Pleura visceral","#fde68a",9],["Pulmão (alvéolos)","#fbcfe8",64]];
+  let y=10, s=`<svg class="hsvg" viewBox="0 0 340 150" role="img" aria-label="Pleuras">`;
+  bands.forEach((b,i)=>{
+    s+=`<rect x="14" y="${y}" width="150" height="${b[2]}" fill="${b[1]}" stroke="#78350f" stroke-width="1"/>`;
+    if(i===0) for(let k=0;k<4;k++) s+=`<rect x="${26+k*36}" y="${y+8}" width="24" height="20" rx="8" fill="#fef3c7" stroke="#a16207"/>`;
+    if(i===2) for(let k=0;k<6;k++) s+=`<circle cx="${28+k*24}" cy="${y+7}" r="2" fill="#38bdf8"/>`;
+    if(i===4) for(let k=0;k<6;k++) s+=`<circle cx="${30+k*24}" cy="${y+22+(k%2)*22}" r="9" fill="#fff" stroke="#db2777" stroke-width="1.4"/>`;
+    const my=y+b[2]/2;
+    s+=`<line x1="164" y1="${my}" x2="178" y2="${my}" stroke="#94a3b8"/><text class="ltx" x="182" y="${my}" dominant-baseline="central">${b[0]}</text>`;
+    y+=b[2];
+  });
+  return s+`</svg>`;
+}
+
+/* ----- Ventilação (inspiração × expiração) ----- */
+function ventWidget(){
+  const ribs=[0,1,2,3].map(i=>`<path d="M${44+i*2} ${96+i*28} Q 66 ${104+i*28} 100 ${98+i*28}" fill="none" stroke="#a16207" stroke-width="3" stroke-linecap="round"/><path d="M${256-i*2} ${96+i*28} Q 234 ${104+i*28} 200 ${98+i*28}" fill="none" stroke="#a16207" stroke-width="3" stroke-linecap="round"/>`).join("");
+  return `<div class="vent auto" id="vent"><div class="seg" style="margin-bottom:8px"><button data-v="auto" class="on">▶ Automático</button><button data-v="insp">Inspiração</button><button data-v="exp">Expiração</button></div>
+  <svg class="hsvg" viewBox="0 0 300 270" role="img" aria-label="Ventilação pulmonar">
+   <rect x="140" y="2" width="20" height="46" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+   <path class="ai" d="M150 10 L150 38 M141 30 L150 42 L159 30" stroke="#0284c7" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+   <path class="ao" d="M150 42 L150 12 M141 20 L150 8 L159 20" stroke="#f97316" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+   <g class="thx"><path d="M150 46 C 60 46, 30 102, 36 160 C 40 200, 70 228, 100 234 L200 234 C 230 228, 260 200, 264 160 C 270 102, 240 46, 150 46 Z" fill="none" stroke="#a16207" stroke-width="3"/>${ribs}</g>
+   <g class="lungs2"><path d="M138 72 C 96 74, 60 110, 62 160 C 64 192, 90 204, 124 200 C 138 196, 140 176, 140 140 Z" fill="#fbcfe8" stroke="#db2777" stroke-width="2.4"/><path d="M162 72 C 204 74, 240 110, 238 160 C 236 192, 210 204, 176 200 C 162 196, 160 176, 160 140 Z" fill="#fbcfe8" stroke="#db2777" stroke-width="2.4"/></g>
+   <path class="dd up" d="M38 238 Q150 172 262 238" fill="none" stroke="#9a3412" stroke-width="8" stroke-linecap="round"/>
+   <path class="dd dn" d="M38 246 Q150 226 262 246" fill="none" stroke="#9a3412" stroke-width="8" stroke-linecap="round"/>
+   <text class="vl" x="150" y="140">Pulmões</text><text class="lbl" x="150" y="264" text-anchor="middle">Diafragma</text><text class="lbl" x="6" y="68">Costelas</text>
+  </svg>
+  <div class="detail" style="margin-top:6px">
+   <div class="vt vt-a"><b class="t">Observe o ciclo</b>Na <b>inspiração</b> o diafragma <b>desce</b>, as costelas se elevam e os pulmões se expandem. Na <b>expiração</b> ele <b>sobe</b> e os pulmões voltam ao tamanho de repouso.</div>
+   <div class="vt vt-i"><b class="t">Inspiração (ativa)</b>Diafragma <b>contrai e desce</b> · intercostais externos elevam as costelas · <b>volume torácico ↑</b> · <b>pressão intrapulmonar ↓</b> (menor que a atmosférica) · o ar <b>entra</b>.</div>
+   <div class="vt vt-e"><b class="t">Expiração (em repouso: passiva)</b>Diafragma <b>relaxa e sobe</b> · costelas descem · <b>volume torácico ↓</b> · <b>pressão intrapulmonar ↑</b> (maior que a atmosférica) · o ar <b>sai</b>. Forçada: abdominais e intercostais internos.</div>
+  </div></div>`;
+}
+
+/* ----- Trocas gasosas no alvéolo ----- */
+function svgAlveolo(){
+  let s=`<svg class="msvg" viewBox="0 0 320 235" role="img" aria-label="Trocas gasosas no alvéolo">`;
+  s+=`<circle cx="160" cy="72" r="62" fill="#fce7f3" stroke="#db2777" stroke-width="4"/><circle cx="160" cy="72" r="57" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4 3"/>`;
+  s+=`<rect x="148" y="125" width="24" height="9" rx="2" fill="#22d3ee" stroke="#0e7490"/><rect x="104" y="108" width="14" height="14" rx="3" transform="rotate(-35 111 115)" fill="#34d399" stroke="#047857"/>`;
+  s+=`<text class="zl" x="160" y="46" text-anchor="middle">Alvéolo (ar)</text><text class="zl" x="160" y="60" text-anchor="middle" style="fill:#0284c7">pO₂ ≈ 104 · pCO₂ ≈ 40</text>`;
+  s+=`<rect x="14" y="156" width="292" height="40" rx="20" fill="#fecaca" stroke="#dc2626" stroke-width="3"/>`;
+  [0,2,4].forEach(d=>{ s+=`<ellipse class="rbc" cx="30" cy="176" rx="14" ry="9" style="animation-delay:-${d}s"/>`; });
+  [[128,92,0],[168,96,.9],[200,90,1.8],[146,102,2.4]].forEach((p,i)=>{ s+=`<circle class="pt1 o2in" cx="${p[0]}" cy="${p[1]}" r="5" style="animation-delay:${p[2]}s"/>`; });
+  [[134,176,.4],[176,178,1.3],[214,174,2.2]].forEach((p,i)=>{ s+=`<circle class="pt2 co2out" cx="${p[0]}" cy="${p[1]}" r="5" style="animation-delay:${p[2]}s"/>`; });
+  s+=`<circle class="pt1" cx="22" cy="214" r="4.5"/><text class="zl" x="31" y="217">O₂</text><circle class="pt2" cx="62" cy="214" r="4.5"/><text class="zl" x="71" y="217">CO₂</text>`;
+  s+=`<text class="zl" x="306" y="217" text-anchor="end">sangue venoso → arterial</text>`;
+  s+=`<text class="zl" x="182" y="141">pneumócito I</text><text class="zl" x="12" y="104">pneumócito II</text><text class="zl" x="12" y="116">(surfactante)</text>`;
+  s+=`<text class="zl" x="16" y="150">sangue: pO₂ ≈ 40 · pCO₂ ≈ 45 (mmHg)</text>`;
+  return s+`</svg>`;
+}
+
+/* ----- Barras empilhadas (transporte de gases) ----- */
+function stackBar(parts){
+  return `<div class="stack">${parts.map(p=>`<div style="width:${p.p}%;background:${p.c}">${p.p>=8?p.p.toLocaleString("pt-BR")+"%":""}</div>`).join("")}</div>
+  <div class="legend3" style="margin-top:8px">${parts.map(p=>`<span><i style="background:${p.c}"></i>${p.l}${p.p<8?" ("+p.p.toLocaleString("pt-BR")+"%)":""}</span>`).join("")}</div>`;
+}
+
+/* ----- Espirometria ----- */
+function crPath(pts){
+  let d=`M${pts[0][0]} ${pts[0][1]}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
+    const c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6], c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];
+    d+=` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)}, ${c2[0].toFixed(1)} ${c2[1].toFixed(1)}, ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+function svgSpiro(){
+  const Y=v=>+(224-v*0.0355).toFixed(1);
+  const pts=[[34,2300],[48,2800],[62,2300],[76,2800],[90,2300],[104,2800],[118,2300],[136,5800],[152,5800],[172,1200],[188,1200],[202,2300],[216,2800],[230,2300]].map(p=>[p[0],Y(p[1])]);
+  let s=`<svg class="msvg" viewBox="0 0 360 240" role="img" aria-label="Espirometria: volumes e capacidades">`;
+  [[0,"0"],[1200,"1200"],[2300,"2300"],[2800,"2800"],[5800,"5800"]].forEach(([v,l])=>{ s+=`<line x1="34" y1="${Y(v)}" x2="236" y2="${Y(v)}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/><text class="zl" x="30" y="${Y(v)+3}" text-anchor="end" style="font-size:8px">${l}</text>`; });
+  s+=`<path class="spl" pathLength="100" d="${crPath(pts)}"/>`;
+  const br=(v1,v2,x,l,c)=>`<path d="M${x} ${Y(v1)} L${x+5} ${Y(v1)} L${x+5} ${Y(v2)} L${x} ${Y(v2)}" fill="none" stroke="${c}" stroke-width="2"/><text class="zl" x="${x+9}" y="${(Y(v1)+Y(v2))/2+3}" style="fill:${c};font-size:9px;font-weight:800">${l}</text>`;
+  s+=br(2800,5800,238,"VRI 3000","#2563eb")+br(2300,2800,238,"VC 500","#16a34a")+br(1200,2300,238,"VRE 1100","#d97706")+br(0,1200,238,"VR 1200","#7c3aed");
+  [[0,5800,"CPT","#0f766e"],[1200,5800,"CV","#2563eb"],[2300,5800,"CI","#0891b2"],[0,2300,"CRF","#d97706"]].forEach(([a,b2,l,c],i)=>{ const x=288+i*17; s+=`<rect x="${x}" y="${Y(b2)}" width="9" height="${(Y(a)-Y(b2)).toFixed(1)}" rx="3" fill="${c}" opacity=".85"/><text class="zl" x="${x+4.5}" y="12" text-anchor="middle" style="font-size:7.5px;font-weight:800;fill:${c}">${l}</text>`; });
+  s+=`<text class="zl" x="34" y="236">tempo →</text><text class="zl" x="2" y="12">mL</text>`;
+  return s+`</svg>`;
+}
+
+/* =====================  PERGUNTAS COM IMAGEM (escreva o nome)  ===================== */
+const CELL_ANS={eri:["hemácia","hemácias","eritrócito","eritrócitos","glóbulo vermelho"],pla:["plaqueta","plaquetas","trombócito","trombócitos"],neu:["neutrófilo","neutrófilos"],lin:["linfócito","linfócitos"],mon:["monócito","monócitos"],eos:["eosinófilo","eosinófilos"],bas:["basófilo","basófilos"]};
+const LAY_ANS={fib:["pericárdio fibroso","fibroso"],par:["lâmina parietal","pericárdio seroso parietal","pericárdio parietal","parietal"],cav:["cavidade pericárdica","espaço pericárdico"],epi:["epicárdio","lâmina visceral","pericárdio visceral"],mio:["miocárdio"],endo:["endocárdio"],luz:["luz","sangue","luz da câmara","câmara"]};
+const HEART_ANS={1:["veias cavas","veia cava","veia cava superior","veia cava inferior","vcs","vci"],2:["átrio direito","ad"],3:["válvula tricúspide","tricúspide","valva tricúspide"],4:["ventrículo direito","vd"],5:["válvula pulmonar","valva pulmonar","válvula semilunar pulmonar"],6:["tronco pulmonar","artéria pulmonar","artérias pulmonares","tronco e artérias pulmonares"],7:["pulmões","pulmão","pulmao"],8:["veias pulmonares","veia pulmonar"],9:["átrio esquerdo","ae"],10:["válvula mitral","mitral","bicúspide","válvula bicúspide","valva mitral"],11:["ventrículo esquerdo","ve"],12:["válvula aórtica","aórtica","valva aórtica"],13:["aorta"]};
+const AIR_ANS={1:["fossas nasais","fossa nasal","nariz","cavidade nasal","cavidades nasais"],2:["faringe"],3:["laringe"],4:["traqueia"],5:["brônquios principais","brônquio principal","=brônquios","=brônquio"],6:["brônquios lobares","brônquios segmentares","brônquios lobares e segmentares","brônquios secundários","brônquios terciários"],7:["bronquíolos","bronquíolo"],8:["ductos alveolares","sacos alveolares","ductos e sacos alveolares","ducto alveolar","saco alveolar"],9:["alvéolos","alvéolo"]};
+const IQ_GROUPS=[["all","Todas"],["cells","Células"],["layers","Camadas do coração"],["heart","Estruturas do coração"],["air","Vias aéreas"]];
+const IQ_NAME=Object.fromEntries(IQ_GROUPS);
+
+function buildIQ(){
+  const items=[];
+  Object.keys(CELLS).forEach(id=>items.push({g:"cells",img:`<div class="qimg sm">${cellSVG(id)}</div>`,q:"Que célula do sangue é esta?",name:CELLS[id].n,ans:CELL_ANS[id],x:`${CELLS[id].ap} ${CELLS[id].fn}`}));
+  LAYERS.forEach(L=>items.push({g:"layers",img:`<div class="qimg">${svgLayers(null,{hide:true,target:L.id})}</div>`,q:"Qual camada está marcada com “?” (corte da parede do coração, de fora para dentro)?",name:L.n,ans:LAY_ANS[L.id],x:L.d}));
+  HS.forEach((s,i)=>items.push({g:"heart",img:`<div class="qimg">${svgHeart(i+1,{hide:true})}</div>`,q:"Qual estrutura do coração está destacada em amarelo? (vista frontal: o lado direito do paciente fica à esquerda da figura)",name:s.n,ans:HEART_ANS[i+1],x:s.say}));
+  AS.forEach((s,i)=>items.push({g:"air",img:`<div class="qimg">${svgAir(i+1,{hide:true})}</div>`,q:"Qual etapa do caminho do ar está destacada em amarelo?",name:s.n,ans:AIR_ANS[i+1],x:s.say}));
+  return items;
+}
+
+/* comparação tolerante: sem acento, sem artigos, com pequenos erros de digitação */
+const normA=s=>String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\b(o|a|os|as|do|da|de|dos|das)\b/g," ").replace(/\s+/g," ").trim();
+function lev(a,b){ const m=a.length,n=b.length; if(!m) return n; if(!n) return m; let p=Array.from({length:n+1},(_,j)=>j); for(let i=1;i<=m;i++){ const c=[i]; for(let j=1;j<=n;j++) c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; } return p[n]; }
+/* distância entre o que a pessoa escreveu (já normalizado) e uma lista de respostas aceitas.
+   Itens que começam com "=" só valem se forem idênticos (sem tolerância). */
+function distAns(n,list){
+  let best=99;
+  list.forEach(a=>{
+    const raw=String(a), exact=raw[0]==="=", m=normA(exact?raw.slice(1):raw); if(!m) return;
+    if(n===m){ best=0; return; }
+    if(exact) return;
+    if(m.length>=5&&n.length>=5){ const l=lev(n,m); if(l<=(m.length>=12?2:1)) best=Math.min(best,l); }
+    if(m.length>=6&&n.includes(m)&&n.length<=m.length+12) best=Math.min(best,.5);
+  });
+  return best;
+}
+/* aceita se estiver perto das respostas deste item e mais perto dele do que de qualquer outro item do mesmo grupo */
+function matchItem(inp,it,all){
+  const n=normA(inp); if(!n) return false;
+  const ds=distAns(n,[it.name,...it.ans]); if(ds>=99) return false;
+  const dOther=Math.min(99,...all.filter(o=>o.g===it.g&&o!==it).map(o=>distAns(n,[o.name,...o.ans])));
+  return ds===0||ds<dOther;
+}
+
+let iqGroup="all", iqLen=10, IS=null;
+function renderIQHome(){
+  const items=buildIQ(), cnt=g=>g==="all"?items.length:items.filter(i=>i.g===g).length;
+  $("qsub").innerHTML=`<div class="card"><b>🖼️ Perguntas com imagem</b><p class="hint">Veja a figura e <b>escreva o nome</b>. Vale com ou sem acento e com pequenos erros de digitação.</p>
+   <h2 class="sec" style="margin-top:6px">Assunto</h2><div class="chips">${IQ_GROUPS.map(([k,n])=>`<button data-g="${k}" class="${iqGroup===k?"on":""}">${n} (${cnt(k)})</button>`).join("")}</div>
+   <h2 class="sec">Questões por rodada</h2><div class="seg">${[[5,"5"],[10,"10"],[0,"Todas"]].map(x=>`<button data-l="${x[0]}" class="${iqLen===x[0]?"on":""}">${x[1]}</button>`).join("")}</div>
+   <button class="btn" id="igo">▶ Começar (${iqLen&&iqLen<cnt(iqGroup)?iqLen:cnt(iqGroup)} questões)</button></div>`;
+  $("qsub").querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ iqGroup=b.dataset.g; renderQuizHome(); });
+  $("qsub").querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ iqLen=+b.dataset.l; renderQuizHome(); });
+  $("igo").onclick=startIQ;
+}
+function startIQ(){
+  let pool=buildIQ().filter(i=>iqGroup==="all"||i.g===iqGroup);
+  pool=shuffle(pool); if(iqLen>0) pool=pool.slice(0,iqLen);
+  IS={deck:pool,all:buildIQ(),i:0,ok:0,bad:0,miss:[],done:false}; renderIQ();
+}
+function hintTxt(it){
+  const w=it.name.split(" ").length;
+  return `Dica: começa com “${it.name[0].toUpperCase()}”, tem ${it.name.replace(/ /g,"").length} letras${w>1?` e ${w} palavras`:""}.`;
+}
+function renderIQ(){
+  if(IS.i>=IS.deck.length) return renderIQRes();
+  IS.done=false; const it=IS.deck[IS.i];
+  $("v-quiz").innerHTML=`<div class="qhead"><button class="x" id="qx" aria-label="Sair">✕</button><div class="prog"><div class="qmeta"><span>Imagem ${IS.i+1} de ${IS.deck.length}</span><span>✅ ${IS.ok} &nbsp;❌ ${IS.bad}</span></div><div class="bar"><i style="width:${Math.round(IS.i/IS.deck.length*100)}%"></i></div></div></div>
+   <div class="card"><span class="pill">🖼️ ${IQ_NAME[it.g]}</span><div class="qtext">${it.q}</div>${it.img}
+   <input id="iqa" class="in" placeholder="Escreva o nome..." autocomplete="off" autocapitalize="off" spellcheck="false">
+   <div class="warnmsg hidden" id="iqw">Escreva uma resposta ou toque em “Não sei”.</div><div class="hint hidden" id="iqh" style="margin:8px 2px 0"></div>
+   <div class="two"><button class="btn" id="iqc">Verificar</button><button class="btn soft" id="iqd">💡 Dica</button></div>
+   <button class="link" id="iqs">Não sei / mostrar resposta</button><div id="fb"></div></div>`;
+  $("qx").onclick=()=>{ if(confirm("Sair do treino?")) renderQuizHome(); };
+  $("iqc").onclick=()=>checkIQ(false); $("iqs").onclick=()=>checkIQ(true);
+  $("iqd").onclick=()=>{ $("iqh").textContent=hintTxt(it); $("iqh").classList.remove("hidden"); };
+  $("iqa").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); checkIQ(false); } };
+  setTimeout(()=>{ try{ $("iqa").focus({preventScroll:true}); }catch(e){} },80);
+}
+function checkIQ(skip){
+  if(IS.done) return;
+  const inp=$("iqa").value.trim(), it=IS.deck[IS.i];
+  if(!skip&&!inp){ $("iqw").classList.remove("hidden"); $("iqa").focus(); return; }
+  IS.done=true; $("iqw").classList.add("hidden");
+  const ok=!skip&&matchItem(inp,it,IS.all);
+  if(ok) IS.ok++; else { IS.bad++; IS.miss.push(it); }
+  $("iqa").disabled=true; $("iqa").classList.add(ok?"okin":"badin"); $("iqc").classList.add("hidden"); $("iqd").classList.add("hidden"); $("iqs").classList.add("hidden");
+  const last=IS.i+1>=IS.deck.length;
+  $("fb").innerHTML=`<div class="fb ${ok?"ok":"bad"}"><div class="fbh"><span class="fbi">${ok?"✓":"✕"}</span><div><small>${ok?"Certo!":"Resposta correta"}</small><b>${it.name}</b></div></div>
+    ${!ok&&!skip?`<div class="attempt" style="font-size:13px;color:var(--muted);margin:-2px 0 8px">Sua resposta: <s style="color:var(--err);font-weight:700">${esc(inp)}</s></div>`:""}
+    <div class="tip"><small>Explicação</small>${it.x}</div><button class="btn dark" id="inx">${last?"Ver resultado":"Próxima imagem →"}</button></div>`;
+  $("inx").onclick=()=>{ IS.i++; renderIQ(); };
+  setTimeout(()=>{ const f=$("fb"); if(f) f.scrollIntoView({behavior:"smooth",block:"nearest"}); },80);
+}
+function renderIQRes(){
+  const n=IS.ok+IS.bad, acc=n?Math.round(IS.ok/n*100):0;
+  $("v-quiz").innerHTML=`<div class="card result"><div class="trophy">${acc>=90?"🏆":acc>=70?"🎉":acc>=50?"👍":"💪"}</div><h2>Resultado</h2><p>${acc>=70?"Muito bem!":"Vale rever os itens abaixo."}</p>
+   <div class="rs"><div style="background:var(--ok-soft);color:var(--ok)"><b>${IS.ok}</b><span>Acertos</span></div><div style="background:var(--err-soft);color:var(--err)"><b>${IS.bad}</b><span>Erros</span></div><div style="background:var(--bg)"><b>${acc}%</b><span>Aproveit.</span></div></div>
+   ${IS.miss.length?`<h2 class="sec" style="text-align:center">Para rever</h2><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${IS.miss.map(m=>`<span class="tag" style="background:var(--err-soft);color:var(--err);border-radius:9px;padding:5px 10px;font-size:12.5px;font-weight:700">${m.name}</span>`).join("")}</div>`:""}
+   <button class="btn" id="iag">🔄 Jogar de novo</button><button class="btn soft" id="ihm">Mudar assunto</button></div>`;
+  $("iag").onclick=startIQ; $("ihm").onclick=renderQuizHome;
+}
+
+/* ---------- Player (vídeo curto) ---------- */
+const P={scenes:[],i:0,playing:false,timer:null,speed:1,rem:0,t0:0,box:null};
+function stopPlayer(){ clearTimeout(P.timer); P.timer=null; if(P.playing){P.playing=false;} const pl=document.getElementById("player"); if(pl) pl.classList.add("paused"); const b=document.getElementById("pplay"); if(b) b.textContent="▶"; }
+function mountPlayer(box,scenes){
+  clearTimeout(P.timer); P.box=box; P.scenes=scenes; P.i=0; P.playing=true;
+  box.innerHTML=`<div class="player" id="player"><div class="stitle"><span id="ptitle"></span><span id="pcount"></span></div>
+   <div class="screen" id="pscreen"></div><div class="segs" id="psegs"></div>
+   <div class="ctrl"><button class="cb" id="pprev" aria-label="Anterior">⏮</button><button class="cb big" id="pplay" aria-label="Pausar">⏸</button><button class="cb" id="pnext" aria-label="Próxima">⏭</button><button class="cb sp" id="pspeed">${P.speed===1?"1×":"0,5×"}</button></div></div>`;
+  $("pprev").onclick=()=>{P.playing=true;go(Math.max(0,P.i-1));};
+  $("pnext").onclick=()=>{P.playing=true;go(Math.min(P.scenes.length-1,P.i+1));};
+  $("pspeed").onclick=()=>{P.speed=P.speed===1?0.5:1;$("pspeed").textContent=P.speed===1?"1×":"0,5×";P.playing=true;go(P.i);};
+  $("pplay").onclick=togglePlay;
+  go(0);
+}
+function schedule(ms){
+  clearTimeout(P.timer); P.rem=ms; P.t0=performance.now();
+  P.timer=setTimeout(()=>{ if(P.i<P.scenes.length-1) go(P.i+1); else {P.playing=false;$("pplay").textContent="🔁";$("player").classList.add("paused");} },ms);
+}
+function go(i){
+  const sc=P.scenes[i]; P.i=i;
+  const dur=(sc.d||5.5)/P.speed;
+  $("pscreen").innerHTML=`<div class="scene">${sc.vis}<div class="cap">${sc.say}</div></div>`;
+  $("ptitle").textContent=`${i+1}. ${sc.t}`; $("pcount").textContent=`Cena ${i+1} de ${P.scenes.length}`;
+  $("psegs").innerHTML=P.scenes.map((_,k)=>`<button data-i="${k}" class="${k<i?"done":k===i?"cur":""}" style="--d:${dur}s" aria-label="Cena ${k+1}"><i></i></button>`).join("");
+  $("psegs").querySelectorAll("button").forEach(b=>b.onclick=()=>{P.playing=true;go(+b.dataset.i);});
+  animateCounts($("pscreen"));
+  const pl=$("player");
+  if(P.playing){ pl.classList.remove("paused"); $("pplay").textContent="⏸"; schedule(dur*1000); }
+  else { clearTimeout(P.timer); pl.classList.add("paused"); $("pplay").textContent="▶"; }
+}
+function togglePlay(){
+  const pl=$("player");
+  if(P.playing){ P.playing=false; clearTimeout(P.timer); P.rem=Math.max(300,P.rem-(performance.now()-P.t0)); pl.classList.add("paused"); $("pplay").textContent="▶"; }
+  else {
+    const atEnd=$("pplay").textContent==="🔁";
+    P.playing=true;
+    if(atEnd){ go(0); return; }
+    pl.classList.remove("paused"); $("pplay").textContent="⏸"; schedule(P.rem||2000);
+  }
+}
+
+
+/* =====================  TELAS  ===================== */
+function showView(v){
+  stopPlayer();
+  ["home","topic","quiz"].forEach(x=>$("v-"+x).classList.toggle("hidden",x!==v));
+  document.querySelectorAll(".tab[data-tab]").forEach(t=>t.classList.toggle("on",t.dataset.tab===(v==="quiz"?"quiz":"home")));
+  $("main").scrollTop=0;
+}
+document.querySelectorAll(".tab[data-tab]").forEach(t=>t.onclick=()=>{ if(t.dataset.tab==="quiz") renderQuizHome(); else renderHome(); });
+
+function renderHome(){
+  showView("home");
+  $("v-home").innerHTML=`<p class="hint" style="margin:0 2px 12px">Escolha um assunto para revisar com imagens e animações.</p><div class="topics">`+
+    TOPICS.map(t=>`<button class="topic" data-t="${t.id}"><span class="te" style="background:${t.bg}">${t.e}</span><span><b>${t.t}</b><small>${t.d}</small></span><span class="go">›</span></button>`).join("")+
+    `<button class="topic t-train" id="trn"><span class="te">🎯</span><span><b>Treinar</b><small>${QZ.length} questões + perguntas com imagem (escreva o nome)</small></span><span class="go">›</span></button></div>`;
+  $("v-home").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>openTopic(b.dataset.t));
+  $("trn").onclick=renderQuizHome;
+}
+function openTopic(id){
+  showView("topic");
+  const T=TOPICS.find(t=>t.id===id);
+  const body={circ:pageCirc,wall:pageWall,cells:pageCells,ans:pageAns,mem:pageMem,resp:pageResp}[id]();
+  $("v-topic").innerHTML=`<button class="backbtn" id="back">← Tópicos</button>${body}`;
+  $("back").onclick=renderHome;
+  ({circ:bindCirc,wall:bindWall,cells:bindCells,ans:bindAns,mem:bindMem,resp:bindResp}[id])();
+}
+
+/* ----- jogo de ordenar ----- */
+function orderGame(box,items,solution){
+  let pool=shuffle(items), ans=[], checked=false;
+  const lab=id=>items.find(i=>i.id===id);
+  function draw(){
+    const free=pool.filter(p=>!ans.includes(p));
+    box.innerHTML=`<div class="og-ans">${solution.map((_,i)=>{const it=ans[i];const st=checked&&it?(it.id===solution[i]?"ok":"bad"):"";return `<button class="og-slot ${it?"has":""} ${st}" data-ai="${i}"><b>${i+1}</b><span>${it?esc(it.label):"toque numa opção abaixo"}</span></button>`;}).join("")}</div>
+     <div class="og-pool">${free.map(p=>`<button class="og-chip" data-id="${p.id}">${esc(p.label)}</button>`).join("")}</div>
+     <div class="two"><button class="btn mini" id="og-ck">Verificar</button><button class="btn soft mini" id="og-rs">Reiniciar</button></div><div class="og-msg" id="og-msg"></div>`;
+    box.querySelectorAll(".og-chip").forEach(b=>b.onclick=()=>{ if(ans.length<solution.length){ ans.push(pool.find(p=>p.id===b.dataset.id)); checked=false; draw(); } });
+    box.querySelectorAll(".og-slot.has").forEach(b=>b.onclick=()=>{ ans.splice(+b.dataset.ai,1); checked=false; draw(); });
+    $("og-rs").onclick=()=>{ pool=shuffle(items); ans=[]; checked=false; draw(); };
+    $("og-ck").onclick=()=>{
+      checked=true; draw();
+      const ok=ans.filter((a,i)=>a.id===solution[i]).length, m=$("og-msg");
+      if(ans.length<solution.length){ m.style.color="var(--warn)"; m.textContent=`Faltam ${solution.length-ans.length} item(ns). Até aqui: ${ok} no lugar certo.`; }
+      else if(ok===solution.length){ m.style.color="var(--ok)"; m.textContent="🎉 Ordem perfeita!"; }
+      else { m.style.color="var(--err)"; m.textContent=`${ok} de ${solution.length} no lugar certo. Toque nos itens vermelhos para tirar e tentar de novo.`; }
+    };
+  }
+  draw();
+}
+
+/* ===== 1) Trajeto do sangue ===== */
+function pageCirc(){
+  return `<div class="card"><b>🫀 Trajeto do sangue: da veia cava até a aorta</b>
+    <p class="hint">O sangue passa sempre no mesmo sentido porque as <b>válvulas</b> impedem o refluxo. Os números mostram a ordem.</p>
+    <div class="legend3"><span><i style="background:#2563eb"></i>Sangue venoso (pobre em O₂)</span><span><i style="background:#dc2626"></i>Sangue arterial (rico em O₂)</span></div>
+    ${svgHeart(0)}
+    <button class="btn vio" id="anim">▶ Animar o trajeto (13 passos)</button></div>
+    <div id="pbox"></div>
+    <div class="card"><b>📋 Ordem do trajeto</b><p class="hint" style="margin-bottom:4px">Toque em um passo para ver a animação dele.</p>
+      <ul class="steplist">${HS.map((s,i)=>`<li data-i="${i}" class="${i<7?"v":"a"}"><b>${i+1}</b><span>${s.n}</span><em>${i<7?"venoso":"arterial"}</em></li>`).join("")}</ul></div>
+    <div class="card"><b>🔄 As duas circulações</b>
+      <div class="two2" style="margin-top:8px"><div class="mini2" style="background:#dbeafe"><b>Pequena (pulmonar)</b>VD → tronco pulmonar → pulmões → veias pulmonares → AE</div>
+      <div class="mini2" style="background:#fee2e2"><b>Grande (sistêmica)</b>VE → aorta → corpo → veias cavas → AD</div></div>
+      <div class="sbox"><b>Pegadinha:</b> as artérias pulmonares levam sangue <b>venoso</b> e as veias pulmonares levam sangue <b>arterial</b>. Artéria = sai do coração; veia = chega ao coração.</div></div>
+    <div class="card"><b>🧩 Monte a ordem</b><p class="hint">Do <b>1º ao 13º</b> passo, a partir das veias cavas.</p><div id="og1"></div></div>`;
+}
+function startCirc(i){
+  mountPlayer($("pbox"),HS.map((s,k)=>({t:s.n,d:6.5,vis:svgHeart(k+1),say:s.say})));
+  if(i>0) go(i);
+  setTimeout(()=>$("pbox").scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+function bindCirc(){
+  $("anim").onclick=()=>startCirc(0);
+  $("v-topic").querySelectorAll(".steplist li").forEach(li=>li.onclick=()=>startCirc(+li.dataset.i));
+  orderGame($("og1"),HS.map((s,i)=>({id:"s"+i,label:s.n})),HS.map((s,i)=>"s"+i));
+}
+
+/* ===== 2) Camadas do coração ===== */
+let layerSel="mio";
+function layerDetail(id){
+  const L=LAYERS.find(l=>l.id===id);
+  return `<div class="detail"><b class="t">${L.n}</b><span style="font-size:12px;font-weight:800;color:var(--brand)">${L.grp}</span><div style="margin-top:4px">${L.d}</div></div>`;
+}
+function pageWall(){
+  return `<div class="card"><b>🧱 Camadas do coração</b>
+    <p class="hint">Corte da parede, de <b>fora para dentro</b>. Toque em uma camada para ver os detalhes.</p>
+    <div id="lsvg">${svgLayers(layerSel)}</div><div id="ldet">${layerDetail(layerSel)}</div></div>
+    <div class="card"><b>🧠 Para decorar</b>
+      <div class="mnem"><span><b>Epi</b> = sobre</span><span><b>Mio</b> = músculo</span><span><b>Endo</b> = dentro</span></div>
+      <div class="sbox">Parede do coração (fora → dentro): <b>epicárdio → miocárdio → endocárdio</b>.<br>O <b>pericárdio</b> é o saco que envolve o coração (fibroso + seroso); entre as lâminas parietal e visceral há <b>líquido pericárdico</b>.</div></div>
+    <div class="card"><b>⚖️ Comparando as câmaras</b><p class="hint" style="margin:6px 0 0">O <b>miocárdio do ventrículo esquerdo</b> é bem mais espesso que o do direito: ele precisa vencer a resistência da circulação do corpo todo. Os átrios têm parede mais fina.</p></div>`;
+}
+function bindWall(){
+  $("lsvg").onclick=e=>{ const g=e.target.closest("[data-l]"); if(!g) return; layerSel=g.dataset.l; $("lsvg").innerHTML=svgLayers(layerSel); $("ldet").innerHTML=layerDetail(layerSel); };
+}
+
+/* ===== 3) Células do sangue ===== */
+let cellSel="bas";
+function cellDetail(id){
+  const c=CELLS[id];
+  return `<div class="cdet">${cellSVG(id)}<div><b class="t">${c.n}</b><span class="tag2">${c.grp}</span><span class="tag2">${c.pct}</span><p style="margin:6px 0 4px;font-size:14px"><b>Aparência:</b> ${c.ap}</p><p style="margin:0;font-size:14px"><b>Função:</b> ${c.fn}</p></div></div>`;
+}
+function pageCells(){
+  const ids=["eri","pla","neu","lin","mon","eos","bas"];
+  return `<div class="card"><b>🔬 Galeria de células</b><p class="hint">Toque em uma célula (imagens esquemáticas, no estilo de uma lâmina corada).</p>
+    <div class="gal" id="gal">${ids.map(id=>`<button class="cellcard ${id===cellSel?"on":""}" data-c="${id}">${cellSVG(id)}${CELLS[id].n.split(" ")[0]}</button>`).join("")}</div>
+    <div id="cdet" class="detail" style="margin-top:0">${cellDetail(cellSel)}</div></div>
+    <div class="card"><b>📊 Leucócitos: do mais abundante ao mais raro</b>
+      <div class="abund">${LEUCO.map((id,i)=>`<div class="arow">${cellSVG(id)}<div class="abar"><i style="width:${Math.max(LEUCO_PCT[id],4)}%;background:${LEUCO_COL[id]};animation-delay:${i*.15}s"></i><span>${i+1}º · ${CELLS[id].n} · ${CELLS[id].pct.replace(" dos leucócitos","")}</span></div></div>`).join("")}</div>
+      <div class="mnem"><span><b>N</b>eutrófilo</span><span><b>L</b>infócito</span><span><b>M</b>onócito</span><span><b>E</b>osinófilo</span><span><b>B</b>asófilo</span></div>
+      <div class="sbox">Macete: <b>N</b>ós <b>L</b>emos <b>M</b>uito <b>E</b>m <b>B</b>iologia.<br><b>Granulócitos</b>: neutrófilo, eosinófilo e basófilo. <b>Agranulócitos</b>: linfócito e monócito.</div></div>
+    <div class="card"><b>🧩 Monte a ordem de abundância</b><p class="hint">Do <b>mais</b> abundante ao <b>menos</b> abundante.</p><div id="og2"></div></div>`;
+}
+function bindCells(){
+  $("gal").onclick=e=>{ const b=e.target.closest("[data-c]"); if(!b) return; cellSel=b.dataset.c; $("gal").querySelectorAll(".cellcard").forEach(x=>x.classList.toggle("on",x===b)); $("cdet").innerHTML=cellDetail(cellSel); };
+  orderGame($("og2"),LEUCO.map(id=>({id,label:CELLS[id].n})),LEUCO);
+}
+
+/* ===== 4) Simpático × Parassimpático ===== */
+function pageAns(){
+  return `<div class="card"><b>🧠 Sistema nervoso autônomo</b><p class="hint">Toque em um dos botões e veja como cada órgão responde.</p>${ansWidget()}</div>
+    <div class="card"><b>📍 Onde nasce cada um</b>${svgCord()}</div>
+    <div class="card"><b>⚖️ Comparação</b><div class="tscroll"><table class="tb"><tr><th></th><th>Simpático</th><th>Parassimpático</th></tr>
+      <tr><td><b>Lema</b></td><td class="s">Luta ou fuga</td><td class="p">Repouso e digestão</td></tr>
+      <tr><td><b>Origem</b></td><td class="s">Toracolombar (T1–L2)</td><td class="p">Craniossacral (III, VII, IX, X e S2–S4)</td></tr>
+      <tr><td><b>Gânglios</b></td><td>Perto da medula (cadeia paravertebral)</td><td>Perto ou dentro do órgão</td></tr>
+      <tr><td><b>Fibras</b></td><td>Pré <b>curta</b>, pós <b>longa</b></td><td>Pré <b>longa</b>, pós <b>curta</b></td></tr>
+      <tr><td><b>Neurotransmissor</b></td><td>Pré: acetilcolina<br>Pós: <b>noradrenalina</b></td><td>Pré e pós: <b>acetilcolina</b></td></tr>
+      <tr><td><b>Coração</b></td><td class="s">↑ frequência</td><td class="p">↓ frequência</td></tr>
+      <tr><td><b>Pupila</b></td><td class="s">Dilata</td><td class="p">Contrai</td></tr>
+      <tr><td><b>Brônquios</b></td><td class="s">Dilatam</td><td class="p">Contraem</td></tr>
+      <tr><td><b>Digestão</b></td><td class="s">Inibe</td><td class="p">Estimula</td></tr></table></div>
+      <div class="sbox"><b>Detalhe:</b> a medula da adrenal libera <b>adrenalina</b> quando o simpático é ativado. As glândulas sudoríparas são simpáticas, mas usam acetilcolina.</div></div>`;
+}
+function bindAns(){
+  $("v-topic").querySelectorAll("#answ .seg button").forEach(b=>b.onclick=()=>{
+    $("answ").classList.toggle("sym",b.dataset.m==="sym"); $("answ").classList.toggle("para",b.dataset.m==="para");
+    $("answ").querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x===b));
+  });
+}
+
+/* ===== 5) Transporte pela membrana ===== */
+let memSel="osm";
+const MEMT=[["osm","Osmose"],["sim","Difusão simples"],["fac","Difusão facilitada"],["ati","Transporte ativo"],["vei","Endo/Exocitose"],["res","Resumo"]];
+function memBody(k){
+  if(k==="osm") return `<div class="card"><b>💧 Osmose</b>${svgOsmose()}
+    <div class="sbox">Passagem de <b>água</b> por uma <b>membrana semipermeável</b>, do meio <b>hipotônico</b> (menos soluto) para o <b>hipertônico</b> (mais soluto). Não gasta ATP. Macete: <b>a água vai atrás do soluto</b>.</div></div>
+    <div class="card"><b>🩸 Osmose na hemácia</b>${svgTonic()}<div class="sbox">Hipotônico: a célula <b>incha</b> (pode sofrer <b>lise</b>). Hipertônico: <b>murcha</b> (<b>crenação</b>). Isotônico: mantém a forma.</div></div>`;
+  if(k==="sim") return `<div class="card"><b>🌬️ Difusão simples</b>${svgSimples()}
+    <div class="sbox">Moléculas pequenas ou apolares (<b>O₂, CO₂</b>, lipídios, hormônios esteroides) atravessam a bicamada lipídica, do meio <b>mais</b> para o <b>menos</b> concentrado. <b>Sem proteína e sem ATP</b>.</div></div>`;
+  if(k==="fac") return `<div class="card"><b>🚪 Difusão facilitada</b>${svgFacil()}
+    <div class="sbox">Substâncias que não atravessam a bicamada (íons, <b>glicose</b>, aminoácidos) passam por proteínas: <b>canal</b> (um poro, como as aquaporinas) ou <b>carreadora</b> (liga-se, muda de forma e solta do outro lado). É <b>a favor do gradiente</b>, sem ATP; a carreadora pode <b>saturar</b>.</div></div>`;
+  if(k==="ati") return `<div class="card"><b>⚡ Transporte ativo: bomba Na⁺/K⁺</b>${svgAtivo()}
+    <div class="sbox"><b>Contra o gradiente</b>, com <b>ATP</b> e proteína (bomba). A bomba expulsa <b>3 Na⁺</b> e leva <b>2 K⁺</b> para dentro, mantendo o potencial de membrana e o volume da célula.</div></div>`;
+  if(k==="vei") return `<div class="card"><b>📦 Endocitose</b>${svgEndo(false)}<div class="sbox"><b>Fagocitose</b> = englobar partículas <b>sólidas</b>; <b>pinocitose</b> = gotículas de <b>líquido</b>. Forma uma vesícula e gasta ATP.</div></div>
+    <div class="card"><b>📤 Exocitose</b>${svgEndo(true)}<div class="sbox">A vesícula se funde à membrana e <b>libera o conteúdo para fora</b> (secreção de hormônios, neurotransmissores, resíduos). Gasta ATP.</div></div>`;
+  return `<div class="card"><b>📋 Resumo dos tipos</b><div class="tscroll"><table class="tb"><tr><th>Tipo</th><th>Gradiente</th><th>ATP</th><th>Proteína</th><th>Exemplo</th></tr>
+    <tr><td><b>Difusão simples</b></td><td>A favor</td><td>Não</td><td>Não</td><td>O₂, CO₂</td></tr>
+    <tr><td><b>Osmose</b></td><td>Água: do hipo ao hipertônico</td><td>Não</td><td>Aquaporina (opcional)</td><td>Água na hemácia</td></tr>
+    <tr><td><b>Difusão facilitada</b></td><td>A favor</td><td>Não</td><td>Canal ou carreadora</td><td>Glicose, íons</td></tr>
+    <tr><td><b>Transporte ativo</b></td><td>Contra</td><td>Sim</td><td>Bomba</td><td>Na⁺/K⁺ ATPase</td></tr>
+    <tr><td><b>Endo/exocitose</b></td><td>Em bloco</td><td>Sim</td><td>Vesículas</td><td>Fagocitose, secreção</td></tr></table></div>
+    <div class="sbox"><b>Passivo</b>: difusão simples, osmose e difusão facilitada (sem ATP). <b>Ativo</b>: bomba e vesículas (com ATP).</div></div>`;
+}
+function pageMem(){
+  return `<div class="chips" id="mchips">${MEMT.map(([k,n])=>`<button data-k="${k}" class="${k===memSel?"on":""}">${n}</button>`).join("")}</div><div id="mbody">${memBody(memSel)}</div>`;
+}
+function bindMem(){
+  $("mchips").onclick=e=>{ const b=e.target.closest("[data-k]"); if(!b) return; memSel=b.dataset.k; $("mchips").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); $("mbody").innerHTML=memBody(memSel); };
+}
+
+/* =====================  TREINAR  ===================== */
+let qFilter="all", qLen=10, QS=null, qMode="mc";
+function renderQuizHome(){
+  showView("quiz"); QS=null; IS=null;
+  $("v-quiz").innerHTML=`<div class="seg" style="margin-bottom:12px"><button data-qm="mc" class="${qMode==="mc"?"on":""}">📝 Múltipla escolha</button><button data-qm="img" class="${qMode==="img"?"on":""}">🖼️ Imagens (escreva)</button></div><div id="qsub"></div>`;
+  $("v-quiz").querySelectorAll("[data-qm]").forEach(b=>b.onclick=()=>{ qMode=b.dataset.qm; renderQuizHome(); });
+  if(qMode==="img") renderIQHome(); else renderMCHome();
+}
+function renderMCHome(){
+  QS=null;
+  const n=qFilter==="all"?QZ.length:QZ.filter(q=>q.t===qFilter).length;
+  $("qsub").innerHTML=`<div class="card"><b>🎯 Treinar</b><p class="hint">Questões e alternativas sempre embaralhadas.</p>
+    <h2 class="sec" style="margin-top:6px">Assunto</h2>
+    <div class="chips"><button data-f="all" class="${qFilter==="all"?"on":""}">Todos</button>${TOPICS.map(t=>`<button data-f="${t.id}" class="${qFilter===t.id?"on":""}">${t.e} ${t.s||t.t.split(" ")[0]}</button>`).join("")}</div>
+    <h2 class="sec">Questões por rodada</h2>
+    <div class="seg">${[[5,"5"],[10,"10"],[0,"Todas"]].map(x=>`<button data-l="${x[0]}" class="${qLen===x[0]?"on":""}">${x[1]}</button>`).join("")}</div>
+    <button class="btn" id="qgo">▶ Começar (${qLen&&qLen<n?qLen:n} questões)</button></div>`;
+  $("v-quiz").querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{ qFilter=b.dataset.f; renderQuizHome(); });
+  $("v-quiz").querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{ qLen=+b.dataset.l; renderQuizHome(); });
+  $("qgo").onclick=startQuiz;
+}
+function startQuiz(){
+  let pool=shuffle(qFilter==="all"?QZ:QZ.filter(q=>q.t===qFilter));
+  if(qLen>0) pool=pool.slice(0,qLen);
+  QS={deck:pool,i:0,ok:0,bad:0,done:false,miss:[]}; renderQ();
+}
+function renderQ(){
+  if(QS.i>=QS.deck.length) return renderQResult();
+  QS.done=false;
+  const q=QS.deck[QS.i], order=shuffle(q.o.map((_,i)=>i)), T=TOPICS.find(t=>t.id===q.t);
+  $("v-quiz").innerHTML=`<div class="qhead"><button class="x" id="qx" aria-label="Sair">✕</button><div class="prog"><div class="qmeta"><span>Questão ${QS.i+1} de ${QS.deck.length}</span><span>✅ ${QS.ok} &nbsp;❌ ${QS.bad}</span></div><div class="bar"><i style="width:${Math.round(QS.i/QS.deck.length*100)}%"></i></div></div></div>
+   <div class="card"><span class="pill">${T.e} ${T.t}</span><div class="qtext">${esc(q.q)}</div>
+   <div class="opts" id="opts">${order.map((oi,k)=>`<button class="opt" data-k="${k}"><span class="lt">${"ABCDE"[k]}</span><span>${esc(q.o[oi])}</span></button>`).join("")}</div><div id="fb"></div></div>`;
+  $("qx").onclick=()=>{ if(confirm("Sair do treino?")) renderQuizHome(); };
+  $("opts").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(QS.done) return; QS.done=true;
+    const k=+b.dataset.k, ok=order[k]===q.a;
+    $("opts").querySelectorAll(".opt").forEach((x,idx)=>{ x.disabled=true; if(order[idx]===q.a) x.classList.add("ok"); else if(idx===k) x.classList.add("bad"); });
+    if(ok) QS.ok++; else { QS.bad++; QS.miss.push(q); }
+    const last=QS.i+1>=QS.deck.length;
+    $("fb").innerHTML=`<div class="fb ${ok?"ok":"bad"}"><div class="fbh"><span class="fbi">${ok?"✓":"✕"}</span><div><small>${ok?"Certo!":"Resposta correta"}</small><b>${esc(q.o[q.a])}</b></div></div><div class="tip"><small>Explicação</small>${q.x}</div><button class="btn dark" id="nx">${last?"Ver resultado":"Próxima →"}</button></div>`;
+    $("nx").onclick=()=>{ QS.i++; renderQ(); };
+    setTimeout(()=>{ const f=$("fb"); if(f) f.scrollIntoView({behavior:"smooth",block:"nearest"}); },80);
+  });
+}
+function renderQResult(){
+  const n=QS.ok+QS.bad, acc=n?Math.round(QS.ok/n*100):0;
+  $("v-quiz").innerHTML=`<div class="card result"><div class="trophy">${acc>=90?"🏆":acc>=70?"🎉":acc>=50?"👍":"💪"}</div><h2>Resultado</h2><p>${acc>=70?"Muito bem!":"Vale revisar os tópicos abaixo."}</p>
+   <div class="rs"><div style="background:var(--ok-soft);color:var(--ok)"><b>${QS.ok}</b><span>Acertos</span></div><div style="background:var(--err-soft);color:var(--err)"><b>${QS.bad}</b><span>Erros</span></div><div style="background:var(--bg)"><b>${acc}%</b><span>Aproveit.</span></div></div>
+   ${QS.miss.length?`<h2 class="sec" style="text-align:center">Para rever</h2><div class="tags" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${[...new Set(QS.miss.map(q=>q.t))].map(t=>{const T=TOPICS.find(x=>x.id===t);return `<button class="tag" style="border:0" data-t="${t}">${T.e} ${T.t}</button>`;}).join("")}</div>`:""}
+   <button class="btn" id="again">🔄 Jogar de novo</button><button class="btn soft" id="hm">Voltar aos tópicos</button></div>`;
+  $("v-quiz").querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>openTopic(b.dataset.t));
+  $("again").onclick=startQuiz; $("hm").onclick=renderHome;
+}
+
+/* =====================  SISTEMA RESPIRATÓRIO: TELAS  ===================== */
+let respSel="ar";
+const RT=[["ar","Caminho do ar"],["pul","Pulmões"],["ven","Ventilação"],["tro","Trocas gasosas"],["tra","Transporte"],["con","Controle"],["vol","Volumes"]];
+
+function respBody(k){
+  if(k==="ar") return `<div class="card"><b>🫁 Caminho do ar: do nariz aos alvéolos</b>
+    <p class="hint">Os números mostram a ordem. A <b>zona de condução</b> (nariz até os bronquíolos) só leva o ar; a <b>zona respiratória</b> (alvéolos) faz as trocas.</p>
+    ${svgAir(0)}<button class="btn vio" id="anim">▶ Animar o caminho do ar (9 passos)</button></div>
+    <div id="pbox"></div>
+    <div class="card"><b>📋 Ordem do caminho</b><p class="hint" style="margin-bottom:4px">Toque em um passo para ver a animação dele.</p>
+      <ul class="steplist">${AS.map((s,i)=>`<li data-i="${i}" class="v"><b>${i+1}</b><span>${s.n}</span><em>${i<7?"condução":"trocas"}</em></li>`).join("")}</ul></div>
+    <div class="card"><b>🧩 Monte a ordem</b><p class="hint">Do <b>1º ao 9º</b> passo, a partir do nariz.</p><div id="og3"></div></div>`;
+  if(k==="pul") return `<div class="card"><b>🫁 Lobos dos pulmões</b>${svgLobes()}
+    <div class="sbox">O pulmão <b>direito</b> tem <b>3 lobos</b> (superior, médio e inferior). O <b>esquerdo</b> tem <b>2 lobos</b> (superior e inferior) e a <b>incisura cardíaca</b>, que dá espaço ao coração: por isso é um pouco menor.</div></div>
+    <div class="card"><b>🧴 Pleuras</b>${svgPleura()}
+    <div class="sbox">A pleura <b>visceral</b> cobre o pulmão; a <b>parietal</b> reveste a parede torácica. Entre elas, a <b>cavidade pleural</b> com um fino filme de líquido, que reduz o atrito e mantém o pulmão acompanhando a caixa torácica (a pressão ali é <b>subatmosférica</b>). Se entra ar nessa cavidade (pneumotórax), o pulmão colapsa.</div></div>`;
+  if(k==="ven") return `<div class="card"><b>🌬️ Ventilação: inspiração × expiração</b>${ventWidget()}
+    <div class="sbox"><b>Lei de Boyle:</b> pressão e volume são inversamente proporcionais. Aumentou o volume torácico → caiu a pressão → o ar entra. O diafragma é controlado pelo <b>nervo frênico</b> (C3–C5).</div></div>`;
+  if(k==="tro") return `<div class="card"><b>💨 Hematose no alvéolo</b>${svgAlveolo()}
+    <div class="sbox">O O₂ passa do alvéolo para o sangue e o CO₂ faz o caminho inverso, por <b>difusão simples</b>, a favor do gradiente de pressão parcial. O sangue chega <b>venoso</b> (escuro) e sai <b>arterial</b> (vivo).</div></div>
+    <div class="card"><b>🧬 Quem trabalha no alvéolo</b><div class="two2" style="margin-top:8px">
+      <div class="mini2" style="background:#dbeafe"><b>Pneumócito tipo I</b>Célula achatada: forma a parede fina e faz as <b>trocas gasosas</b>.</div>
+      <div class="mini2" style="background:#dcfce7"><b>Pneumócito tipo II</b>Produz o <b>surfactante</b>, que reduz a tensão superficial e evita o colapso.</div>
+      <div class="mini2" style="background:#fef3c7"><b>Macrófago alveolar</b>Fagocita poeira e microrganismos que chegam aos alvéolos.</div>
+      <div class="mini2" style="background:#fee2e2"><b>Barreira hematogasosa</b>Parede alveolar + endotélio do capilar: muito fina, facilita a difusão.</div></div></div>`;
+  if(k==="tra") return `<div class="card"><b>🩸 Como o O₂ viaja</b>${stackBar([{p:98.5,c:"#dc2626",l:"Ligado à hemoglobina (oxiemoglobina)"},{p:1.5,c:"#38bdf8",l:"Dissolvido no plasma"}])}
+    <div class="sbox">Cada hemoglobina tem 4 grupos heme e liga até <b>4 O₂</b>. O monóxido de carbono (CO) se liga à hemoglobina com afinidade muito maior (≈ 200×), por isso é tão perigoso.</div></div>
+    <div class="card"><b>🫧 Como o CO₂ viaja</b>${stackBar([{p:70,c:"#7c3aed",l:"Bicarbonato (HCO₃⁻)"},{p:23,c:"#f59e0b",l:"Carbamino-hemoglobina"},{p:7,c:"#38bdf8",l:"Dissolvido"}])}
+    <div class="sbox"><b>CO₂ + H₂O ⇌ H₂CO₃ ⇌ H⁺ + HCO₃⁻</b><br>A reação é acelerada pela <b>anidrase carbônica</b> nas hemácias. Nos pulmões ela corre no sentido contrário e o CO₂ é eliminado.</div></div>`;
+  if(k==="con") return `<div class="card"><b>🧠 Quem controla a respiração</b>
+    <div class="flow">
+     <div class="fbox appear" style="animation-delay:.2s">⬆️ <b>↑ CO₂ (↓ pH)</b> no sangue<small>principal estímulo</small></div><div class="farr">⬇</div>
+     <div class="fbox appear" style="animation-delay:1s"><b>Quimiorreceptores</b><small>centrais (bulbo) e periféricos (corpos carotídeos e aórticos, que também sentem ↓ O₂)</small></div><div class="farr">⬇</div>
+     <div class="fbox appear" style="animation-delay:1.8s"><b>Centro respiratório</b><small>bulbo (ritmo básico) e ponte (centro pneumotáxico, que limita a inspiração)</small></div><div class="farr">⬇</div>
+     <div class="fbox appear" style="animation-delay:2.6s"><b>Nervos motores</b><small>frênico (C3–C5) → diafragma · intercostais → músculos intercostais</small></div><div class="farr">⬇</div>
+     <div class="fbox appear" style="animation-delay:3.4s">🫁 <b>↑ frequência e profundidade</b><small>mais CO₂ eliminado</small></div></div>
+    <div class="sbox">O principal estímulo é o <b>aumento de CO₂</b>, e não a falta de O₂. A queda do O₂ só estimula forte quando fica bem baixa (abaixo de ≈ 60 mmHg).</div></div>`;
+  return `<div class="card"><b>📈 Volumes e capacidades (espirometria)</b><p class="hint">Valores aproximados de um adulto jovem. Toque em ▶ para redesenhar o traçado.</p>
+    <div id="spiro">${svgSpiro()}</div><button class="btn soft mini" id="spiroR">▶ Redesenhar o traçado</button>
+    <div class="tscroll" style="margin-top:8px"><table class="tb"><tr><th>Sigla</th><th>Nome</th><th>mL</th></tr>
+    <tr><td><b>VC</b></td><td>Volume corrente</td><td>≈ 500</td></tr>
+    <tr><td><b>VRI</b></td><td>Volume de reserva inspiratório</td><td>≈ 3.000</td></tr>
+    <tr><td><b>VRE</b></td><td>Volume de reserva expiratório</td><td>≈ 1.100</td></tr>
+    <tr><td><b>VR</b></td><td>Volume residual</td><td>≈ 1.200</td></tr>
+    <tr><td><b>CV</b></td><td>Capacidade vital = VC + VRI + VRE</td><td>≈ 4.600</td></tr>
+    <tr><td><b>CI</b></td><td>Capacidade inspiratória = VC + VRI</td><td>≈ 3.500</td></tr>
+    <tr><td><b>CRF</b></td><td>Capacidade residual funcional = VRE + VR</td><td>≈ 2.300</td></tr>
+    <tr><td><b>CPT</b></td><td>Capacidade pulmonar total = CV + VR</td><td>≈ 5.800</td></tr></table></div>
+    <div class="sbox">O <b>volume residual</b> fica nos pulmões mesmo após a expiração máxima: por isso não aparece na espirometria simples.</div></div>`;
+}
+function pageResp(){
+  return `<div class="chips" id="rchips">${RT.map(([k,n])=>`<button data-k="${k}" class="${k===respSel?"on":""}">${n}</button>`).join("")}</div><div id="rbody">${respBody(respSel)}</div>`;
+}
+function startAir(i){
+  mountPlayer($("pbox"),AS.map((s,k)=>({t:s.n,d:6,vis:svgAir(k+1),say:s.say})));
+  if(i>0) go(i);
+  setTimeout(()=>$("pbox").scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+function bindRespSection(k){
+  if(k==="ar"){
+    $("anim").onclick=()=>startAir(0);
+    $("v-topic").querySelectorAll(".steplist li").forEach(li=>li.onclick=()=>startAir(+li.dataset.i));
+    orderGame($("og3"),AS.map((s,i)=>({id:"a"+i,label:s.n})),AS.map((s,i)=>"a"+i));
+  }
+  if(k==="ven"){
+    $("vent").querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+      $("vent").classList.remove("auto","insp","exp"); $("vent").classList.add(b.dataset.v);
+      $("vent").querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x===b));
+    });
+  }
+  if(k==="vol"){ $("spiroR").onclick=()=>{ $("spiro").innerHTML=svgSpiro(); }; }
+}
+function bindResp(){
+  bindRespSection(respSel);
+  $("rchips").onclick=e=>{
+    const b=e.target.closest("[data-k]"); if(!b) return;
+    stopPlayer(); respSel=b.dataset.k;
+    $("rchips").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+    $("rbody").innerHTML=respBody(respSel); bindRespSection(respSel);
+  };
+}
+
+/* =====================  INÍCIO  ===================== */
+function loadScript(src,cb){ const s=document.createElement("script"); s.src=src; s.onload=cb; s.onerror=()=>{ document.body.innerHTML='<p style="padding:20px;font-family:sans-serif">Não foi possível carregar os arquivos do portal (LICENCA = true exige a pasta do portal).</p>'; }; document.head.appendChild(s); }
+function boot(){ renderHome(); }
+if(LICENCA){
+  $("chip").style.display="none";
+  loadScript("../modulos.js",()=>loadScript("../license.js",()=>{ FFLicense.gate("fisio",boot); if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("../sw.js").catch(()=>{})); } }));
+} else {
+  $("toportal").style.display="none"; $("tabs").style.gridTemplateColumns="repeat(2,1fr)"; $("logo").removeAttribute("href");
+  boot();
+}
+
+
+</script>
+</body>
+</html>
